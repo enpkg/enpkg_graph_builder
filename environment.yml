@@ -1,0 +1,18 @@
+name: graph_builder
+channels:
+  - defaults
+  - anaconda
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.9
+  - sqlite
+  - ipython
+  - networkx
+  - ipykernel
+  - rdflib
+  - pandas
+  - requests
+  - tqdm
+  - sqlite
+prefix: /opt/anaconda3/envs/graph_builder
