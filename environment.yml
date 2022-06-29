@@ -6,6 +6,7 @@ channels:
   - bioconda
 dependencies:
   - python=3.9
+  - pip
   - sqlite
   - ipython
   - networkx
@@ -15,4 +16,6 @@ dependencies:
   - requests
   - tqdm
   - sqlite
+  - pip:
+    - pyyaml
 prefix: /opt/anaconda3/envs/graph_builder

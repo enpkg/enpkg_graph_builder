@@ -6,7 +6,7 @@ import rdflib
 from rdflib import Graph, URIRef, Literal, BNode, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
-
+from tqdm import tqdm
 p = Path(__file__).parents[1]
 os.chdir(p)
 
@@ -60,31 +60,46 @@ g.add((ns_jlw.LabProcess, RDFS.label, rdflib.term.Literal("A lab process")))
 g.add((ns_jlw.has_lab_process, RDF.type, ns_jlw.LabProcess))
 g.add((ns_jlw.WDTaxon, RDFS.subClassOf, ns_jlw.XRef))
 
-        
-for directory in samples_dir:
-    
-    metadata_path = os.path.join(path, directory, 'taxo_output', directory + '_taxo_metadata.tsv')
+for directory in tqdm(samples_dir):    
+    metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
         metadata = pd.read_csv(metadata_path, sep='\t')
     except FileNotFoundError:
         continue
     except NotADirectoryError:
         continue
+        
     sample = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0])
     
-    if metadata.sample_type[0] == 'sample':        
-        
+    if metadata.sample_type[0] == 'sample':
+
         # We define a pf_code entity form the metadata 'sample_substance_name'. And remove the last 5 characters
-        pf_code = rdflib.term.URIRef(jlw_uri + metadata.sample_substance_name[0][:-5])
+        pf_code = rdflib.term.URIRef(jlw_uri + metadata.sample_substance_name[0][:-5])       
         g.add((pf_code, RDF.type, ns_jlw.PFCode))
         g.add((pf_code, ns_jlw.has_lab_process, sample))
-        wd_id = rdflib.term.URIRef(WD + metadata['wd.value'][0][31:])
-        g.add((pf_code, ns_jlw.has_wd_id, wd_id))
-        g.add((wd_id, RDF.type, ns_jlw.WDTaxon))
         g.add((sample, RDF.type, ns_jlw.LabExtract))
         g.add((sample, ns_jlw.type, ns_jlw.LabExtract))
         g.add((sample, RDFS.comment, rdflib.term.Literal(f"Extract {metadata.sample_id[0]}")))
+        
+        # Add GNPS Dashborad link for pos & neg: only if sample_filename_pos column exists and is not NaN and MassIVE id is present
+        if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_pos'][0]):
+                sample_filename_pos = metadata['sample_filename_pos'][0]
+                massive_id = metadata['massive_id'][0]    
+                gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_pos}'
+                gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_pos}'
+                g.add((sample, ns_jlw.has_LCMS_pos, rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0])))
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0]), ns_jlw.has_gnpslcms_link_pos, rdflib.term.Literal(gnps_dashboard_link)))
                 
+        if set(['sample_filename_neg', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_neg'][0]):
+                sample_filename_neg = metadata['sample_filename_neg'][0]
+                massive_id = metadata['massive_id'][0]    
+                gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_neg}'
+                gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_neg}'
+                g.add((sample, ns_jlw.has_LCMS_neg, rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0])))
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), ns_jlw.has_gnpslcms_link_neg, rdflib.term.Literal(gnps_dashboard_link)))
+        
         # Add assay objects to samples
         for assay_id, target in zip(
             ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
@@ -97,7 +112,21 @@ for directory in samples_dir:
                 g.add((assay, ns_jlw.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
                 g.add((assay, RDF.type, type))
                 g.add((type, RDFS.subClassOf, ns_jlw.BioAssayResults))
-                
+        
+        # Add WD taxonomy link to substance
+        metadata_taxo_path = os.path.join(path, directory, 'taxo_output', directory + '_taxo_metadata.tsv')
+        try:
+            metadata_taxo = pd.read_csv(metadata_taxo_path, sep='\t')          
+            if not pd.isna(metadata_taxo['wd.value'][0]):
+                wd_id = rdflib.term.URIRef(WD + metadata_taxo['wd.value'][0][31:])
+                g.add((pf_code, ns_jlw.has_wd_id, wd_id))
+                g.add((wd_id, RDF.type, ns_jlw.WDTaxon))
+            else:
+                g.add((pf_code, ns_jlw.has_unresolved_taxon, rdflib.term.URIRef(jlw_uri + 'unresolved_taxon')))              
+        except FileNotFoundError:
+            g.add((pf_code, ns_jlw.has_unresolved_taxon, rdflib.term.URIRef(jlw_uri + 'unresolved_taxon'))) 
+            pass 
+              
     elif metadata.sample_type[0] == 'blank':        
         g.add((sample, RDF.type, ns_jlw.LabBlank))
         g.add((sample, RDFS.comment, rdflib.term.Literal(f"Blank {metadata.sample_id[0]}")))
