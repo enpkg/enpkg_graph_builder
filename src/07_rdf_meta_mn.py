@@ -41,10 +41,6 @@ job_id = args.gnps_job_id
 ionization_mode = args.ionization_mode
 metadata = args.metadata
 
-sample_dir_path = os.path.normpath('C:/Users/gaudrya.FARMA/Desktop/ordered')
-job_id = '822f2d6ea4a34d18b059689597b06cf4'
-ionization_mode = 'neg'
-metadata = '220615_agg_spectra_neg_metadata.csv'
 
 # path to meta MN
 for file in os.listdir(os.path.join(sample_dir_path, '002_gnps',  job_id, 'gnps_molecular_network_graphml')):

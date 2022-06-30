@@ -4,6 +4,8 @@ import rdflib
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS
 import sqlite3
+import argparse
+import textwrap
 
 # These lines allows to make sure that we are placed at the repo directory level 
 from pathlib import Path
@@ -11,11 +13,24 @@ from pathlib import Path
 p = Path(__file__).parents[2]
 os.chdir(p)
 
-data_in_path = './data/in/vgf_unaligned_data_test/'
-data_out_path = './data/in/'
-path = os.path.normpath(data_in_path)
+""" Argument parser """
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''\
+        TO DO
+        '''))
 
-dat = sqlite3.connect(data_out_path+'/structures_metadata.db')
+parser.add_argument('-p', '--sample_dir_path', required=True,
+                    help='The path to the directory where samples folders to process are located')
+parser.add_argument('-db', '--metadata_path', required=True,
+                    help='The path to the samples metadata SQL DB')
+
+
+args = parser.parse_args()
+sample_dir_path = os.path.normpath(args.sample_dir_path)
+metadata_path = os.path.normpath(args.metadata_path)
+
+dat = sqlite3.connect(metadata_path)
 query = dat.execute("SELECT * From structures_metadata")
 cols = [column[0] for column in query.description]
 df_metadata = pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
@@ -26,7 +41,7 @@ nm = g.namespace_manager
 # Create jlw namespace
 jlw_uri = "https://www.sinergiawolfender.org/jlw/"
 ns_jlw = rdflib.Namespace(jlw_uri)
-prefix = "mkg"
+prefix = "enpkg"
 nm.bind(prefix, ns_jlw)
 
 g.add((ns_jlw.InChIkey, RDFS.subClassOf, ns_jlw.ChemicalEntity))
@@ -45,6 +60,8 @@ for _, row in df_metadata.iterrows():
         g.add((rdflib.term.URIRef(jlw_uri + row['inchikey']), ns_jlw.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
         g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_jlw.WDChemical))
                 
-pathout = os.path.normpath("./data/out/")
+pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
-g.serialize(destination="./data/out/structure_metadata.ttl", format="ttl", encoding="utf-8")        
+pathout = os.path.normpath(os.path.join(pathout, f'structures_metadata.ttl'))
+g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+print(f'Result are in : {pathout}') 

@@ -5,9 +5,33 @@ from rdflib import Graph
 from rdflib.namespace import RDFS, RDF, XSD
 import sqlite3
 from pathlib import Path
- 
+import argparse
+import textwrap
+from tqdm import tqdm
+
 p = Path(__file__).parents[2]
 os.chdir(p)
+
+
+""" Argument parser """
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''\
+        TO DO
+        '''))
+
+parser.add_argument('-p', '--sample_dir_path', required=True,
+                    help='The path to the directory where samples folders to process are located')
+parser.add_argument('-chemdb', '--chem_metadata_path', required=True,
+                    help='The path to the samples metadata SQL DB')
+parser.add_argument('-biodb', '--bio_metadata_path', required=True,
+                    help='The path to the samples ChEMBL metadata FOLDER (will integrate all ChEMBL files)')
+
+
+args = parser.parse_args()
+sample_dir_path = os.path.normpath(args.sample_dir_path)
+chem_metadata_path = os.path.normpath(args.chem_metadata_path)
+path_bio = os.path.normpath(args.bio_metadata_path)
 
 g = Graph()
 nm = g.namespace_manager
@@ -15,7 +39,7 @@ nm = g.namespace_manager
 # Create jlw namespace
 jlw_uri = "https://www.sinergiawolfender.org/jlw/"
 ns_jlw = rdflib.Namespace(jlw_uri)
-prefix = "mkg"
+prefix = "enpkg"
 nm.bind(prefix, ns_jlw)
 
 compound_chembl_url = 'https://www.ebi.ac.uk/chembl/compound_report_card/'
@@ -30,27 +54,20 @@ g.add((ns_jlw.ChEMBLDocument, RDFS.subClassOf, ns_jlw.XRef))
 g.add((ns_jlw.ChEMBLAssay, RDFS.subClassOf, ns_jlw.XRef))
 g.add((ns_jlw.ChEMBLAssayResults, RDFS.subClassOf, ns_jlw.XRef))
 
-#path_bio = "C:/Users/gaudrya.FARMA/Github/biodereplication"
-path_bio = "/Users/pma/Dropbox/git_repos/mandelbrot_project/biodereplication"
-data_in_path = './data/in/vgf_unaligned_data_test/'
-
-path_bio = os.path.normpath(path_bio)
-path_bio = os.path.join(path_bio, 'data/out/chembl')
-path = os.path.normpath(data_in_path)
-
 metadata = []
 for file in os.listdir(path_bio):
-    df_bio_metadata = pd.read_csv(path_bio + '/' + file, index_col=0)
-    metadata.append(df_bio_metadata)
+    if (file.startswith('CHEMBL')) and (file.endswith('.csv')):
+        df_bio_metadata = pd.read_csv(path_bio + '/' + file, index_col=0)
+        metadata.append(df_bio_metadata)
 df_bio_metadata = pd.concat(metadata)
 
-dat = sqlite3.connect(path+'/structures_metadata.db')
+dat = sqlite3.connect(chem_metadata_path)
 query = dat.execute("SELECT * From structures_metadata")
 cols = [column[0] for column in query.description]
 df_metadata = pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
 
 i = 1
-for _, row in df_bio_metadata.iterrows():
+for _, row in tqdm(df_bio_metadata.iterrows(), total = len(df_bio_metadata)):
     inchikey = row['inchikey']
     uri_ik = rdflib.term.URIRef(jlw_uri + inchikey)
     chembl_id_uri = rdflib.term.URIRef(compound_chembl_url + row['molecule_chembl_id'])
@@ -90,7 +107,8 @@ for _, row in df_bio_metadata.iterrows():
             g.add((uri_ik, ns_jlw.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
             g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_jlw.WDChemical))
 
-pathout = os.path.normpath("./data/out/")
+pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
-g.serialize(destination="./data/out/structure_biodereplication.ttl", format="ttl", encoding="utf-8")        
-  
+pathout = os.path.normpath(os.path.join(pathout, f'chembl_metadata.ttl'))
+g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+print(f'Result are in : {pathout}') 
