@@ -7,6 +7,8 @@ import rdflib
 from rdflib import Graph, URIRef, Literal, BNode
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
+from tqdm import tqdm
+
 p = Path(__file__).parents[1]
 os.chdir(p)
 
@@ -44,7 +46,7 @@ g.add((ns_jlw.SiriusCanopusAnnotation, RDFS.subClassOf, ns_jlw.Annotation))
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
-for directory in samples_dir:        
+for directory in tqdm(samples_dir):        
     sirius_param_path = os.path.join(path, directory, ionization_mode, directory + '_WORKSPACE_SIRIUS', 'params.yml')
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:   

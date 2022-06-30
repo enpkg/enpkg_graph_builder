@@ -7,6 +7,7 @@ from rdflib import Graph, URIRef, Literal, BNode, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
 from tqdm import tqdm
+
 p = Path(__file__).parents[1]
 os.chdir(p)
 

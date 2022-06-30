@@ -5,6 +5,7 @@ import textwrap
 import rdflib
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
+from tqdm import tqdm
 
 # These lines allows to make sure that we are placed at the repo directory level 
 from pathlib import Path
@@ -48,7 +49,7 @@ g.add((ns_jlw.IsdbAnnotation, RDFS.subClassOf, ns_jlw.Annotation))
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
-for directory in samples_dir:
+for directory in tqdm(samples_dir):
     isdb_path = os.path.join(path, directory, ionization_mode, 'isdb', directory + '_isdb_reweighted_flat_' + ionization_mode + '.tsv')
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
