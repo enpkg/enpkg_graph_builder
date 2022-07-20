@@ -4,7 +4,7 @@ import textwrap
 import pandas as pd
 import rdflib
 from rdflib import Graph, URIRef, Literal, BNode, Namespace
-from rdflib.namespace import RDF, RDFS, XSD
+from rdflib.namespace import RDF, RDFS, XSD, FOAF
 from pathlib import Path
 from tqdm import tqdm
 
@@ -90,7 +90,8 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 g.add((sample, ns_jlw.has_LCMS_pos, rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0])))
-                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0]), ns_jlw.has_gnpslcms_link_pos, rdflib.term.Literal(gnps_dashboard_link)))
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0]), ns_jlw.has_gnpslcms_link_pos, rdflib.URIRef(gnps_dashboard_link)))
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0]), FOAF.depiction, rdflib.URIRef(gnps_tic_pic))) 
                 
         if set(['sample_filename_neg', 'massive_id']).issubset(metadata.columns):
             if not pd.isna(metadata['sample_filename_neg'][0]):
@@ -99,8 +100,9 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 g.add((sample, ns_jlw.has_LCMS_neg, rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0])))
-                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), ns_jlw.has_gnpslcms_link_neg, rdflib.term.Literal(gnps_dashboard_link)))
-        
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), ns_jlw.has_gnpslcms_link_neg, rdflib.URIRef(gnps_dashboard_link)))
+                g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), FOAF.depiction, rdflib.URIRef(gnps_tic_pic))) 
+                
         # Add assay objects to samples
         for assay_id, target in zip(
             ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \

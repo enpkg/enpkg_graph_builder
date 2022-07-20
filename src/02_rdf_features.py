@@ -59,6 +59,7 @@ for directory in tqdm(samples_dir):
     if metadata.sample_type[0] == 'sample':
         sample = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0])
         area_col = [col for col in quant_table.columns if col.endswith(' Peak area')][0]
+        max_area = quant_table[area_col].max()
             
         # Add feature list object to samples
         feature_list = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_MzMine_feature_list_" + ionization_mode)
@@ -80,12 +81,13 @@ for directory in tqdm(samples_dir):
             g.add((feature_id, ns_jlw.has_row_id, rdflib.term.Literal(row['row ID'], datatype=XSD.integer)))
             g.add((feature_id, ns_jlw.has_parent_mass, rdflib.term.Literal(row['row m/z'], datatype=XSD.float)))
             g.add((feature_id, ns_jlw.has_retention_time, rdflib.term.Literal(row['row retention time'], datatype=XSD.float)))
-            g.add((feature_id, ns_jlw.has_feature_area, rdflib.term.Literal(row[area_col])))
+            g.add((feature_id, ns_jlw.has_feature_area, rdflib.term.Literal(row[area_col], datatype=XSD.float)))
+            g.add((feature_id, ns_jlw.has_relative_feature_area, rdflib.term.Literal(row[area_col]/max_area, datatype=XSD.float)))
             
             usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(row['row ID']))
             g.add((feature_id, ns_jlw.has_usi, rdflib.term.Literal(usi)))
             link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
-            g.add((feature_id, ns_jlw.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
+            g.add((feature_id, ns_jlw.gnps_dashboard_view, rdflib.URIRef(link_spectrum)))
             link_png = 'https://metabolomics-usi.ucsd.edu/png/?usi1=' + usi
             g.add((feature_id, FOAF.depiction, rdflib.URIRef(link_png))) 
             
