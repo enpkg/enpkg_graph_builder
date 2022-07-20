@@ -41,6 +41,8 @@ ns_jlw = rdflib.Namespace(jlw_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_jlw)
 
+g.add((ns_jlw.MzMineFeature, RDFS.subClassOf, ns_jlw.MS2Spectrum))
+
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 for directory in tqdm(samples_dir):
@@ -74,7 +76,6 @@ for directory in tqdm(samples_dir):
             feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(int(row['row ID'])) + '_' + ionization_mode) 
             g.add((feature_list, ns_jlw.has_MZmine_feature, feature_id))
             g.add((feature_id, RDF.type, ns_jlw.MzMineFeature))
-            g.add((feature_id, RDF.type, ns_jlw.MS2Spectrum))
             g.add((feature_id, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
             g.add((feature_id, ns_jlw.has_row_id, rdflib.term.Literal(row['row ID'], datatype=XSD.integer)))
             g.add((feature_id, ns_jlw.has_parent_mass, rdflib.term.Literal(row['row m/z'], datatype=XSD.float)))

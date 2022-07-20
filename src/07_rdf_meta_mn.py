@@ -1,15 +1,9 @@
-import itertools
 import os
-from re import sub
 import pandas as pd
 import rdflib
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
 import networkx as nx
-import itertools
-import subprocess
-import shlex
-import zipfile
 import argparse
 import textwrap
 
@@ -33,7 +27,7 @@ parser.add_argument('-ion', '--ionization_mode', required=True,
 parser.add_argument('-id', '--gnps_job_id', required=True,
                     help='The GNPS job id')
 parser.add_argument('-m', '--metadata', required=True,
-                    help='The the metadata file corresonding to the aggregated .mgf uploaded on GNPS')
+                    help='The metadata file corresonding to the aggregated .mgf uploaded on GNPS')
 
 args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
@@ -68,6 +62,8 @@ prefix = "enpkg"
 nm.bind(prefix, ns_jlw)
 
 g.add((ns_jlw.GNPSAnnotation, RDFS.subClassOf, ns_jlw.Annotation))
+g.add((ns_jlw.GNPSConsensusSpectrum, RDFS.subClassOf, ns_jlw.MS2Spectrum))
+g.add((ns_jlw.GNPSConsensusSpectrum, RDFS.comment, rdflib.term.Literal("A MS2 spectrum corresponding to the GNPS consensus spectrum of 1 or more feature(s)")))
 
 # Load data
 nx_graph = nx.read_graphml(mn_graphml_path)
@@ -100,7 +96,7 @@ for _, row in cluster_id.iterrows():
     link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
     g.add((consensus, ns_jlw.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
     g.add((consensus, ns_jlw.has_component_index, rdflib.term.Literal(cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['componentindex'].values[0], datatype=XSD.integer)))
-    g.add((consensus, RDF.type, ns_jlw.MS2Spectrum))
+    g.add((consensus, RDF.type, ns_jlw.GNPSConsensusSpectrum))
     
 # # create triples for features in the same cluster index
 # for ci in list(cluster_id['#ClusterIdx'].unique()):    
