@@ -82,6 +82,15 @@ for directory in tqdm(samples_dir):
         g.add((sample, ns_jlw.type, ns_jlw.LabExtract))
         g.add((sample, RDFS.comment, rdflib.term.Literal(f"Extract {metadata.sample_id[0]}")))
         
+        plant_parts = metadata[['organism_organe', 'organism_broad_organe', 'organism_tissue', 'organism_subsystem']].copy()
+        plant_parts.fillna('unkown', inplace=True)
+        plant_parts.replace(' ', '_', regex=True, inplace=True)
+        
+        g.add((pf_code, ns_jlw.has_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_organe'][0])))
+        g.add((pf_code, ns_jlw.has_broad_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_broad_organe'][0])))
+        g.add((pf_code, ns_jlw.has_tissue, rdflib.term.URIRef(jlw_uri + plant_parts['organism_tissue'][0])))
+        g.add((pf_code, ns_jlw.has_subsystem, rdflib.term.URIRef(jlw_uri + plant_parts['organism_subsystem'][0])))
+        
         # Add GNPS Dashborad link for pos & neg: only if sample_filename_pos column exists and is not NaN and MassIVE id is present
         if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
             if not pd.isna(metadata['sample_filename_pos'][0]):
