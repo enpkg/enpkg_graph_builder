@@ -95,7 +95,7 @@ for directory in tqdm(samples_dir):
                 feature_id = row['id'].rsplit('_', 1)[1]
                 canopus_annotation_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_canopus_annotation_" + str(feature_id)+ '_' + ionization_mode)                
                 feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(feature_id)+ '_' + ionization_mode)
-                g.add((feature_id, ns_jlw.has_sirius_annotation, canopus_annotation_id))
+                g.add((feature_id, ns_jlw.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.comment, rdflib.term.Literal('CANOPUS annotation')))
                 g.add((canopus_annotation_id, ns_jlw.has_canopus_np_pathway, rdflib.term.Literal(row['NPC#pathway'])))
                 g.add((canopus_annotation_id, ns_jlw.has_canopus_np_pathway_prob, rdflib.term.Literal(row['NPC#pathway Probability'], datatype=XSD.float)))
