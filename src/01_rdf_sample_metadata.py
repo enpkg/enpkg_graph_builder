@@ -75,21 +75,23 @@ for directory in tqdm(samples_dir):
     if metadata.sample_type[0] == 'sample':
 
         # We define a pf_code entity form the metadata 'sample_substance_name'. And remove the last 5 characters
-        pf_code = rdflib.term.URIRef(jlw_uri + metadata.sample_substance_name[0][:-5])       
+        # this can be optionally adapted to fit your metadata
+        #pf_code = rdflib.term.URIRef(jlw_uri + metadata.sample_substance_name[0][:-5])
+        pf_code = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0])       
         g.add((pf_code, RDF.type, ns_jlw.PFCode))
         g.add((pf_code, ns_jlw.has_lab_process, sample))
         g.add((sample, RDF.type, ns_jlw.LabExtract))
         g.add((sample, ns_jlw.type, ns_jlw.LabExtract))
         g.add((sample, RDFS.comment, rdflib.term.Literal(f"Extract {metadata.sample_id[0]}")))
         
-        plant_parts = metadata[['organism_organe', 'organism_broad_organe', 'organism_tissue', 'organism_subsystem']].copy()
-        plant_parts.fillna('unkown', inplace=True)
-        plant_parts.replace(' ', '_', regex=True, inplace=True)
+        # plant_parts = metadata[['organism_organe', 'organism_broad_organe', 'organism_tissue', 'organism_subsystem']].copy()
+        # plant_parts.fillna('unkown', inplace=True)
+        # plant_parts.replace(' ', '_', regex=True, inplace=True)
         
-        g.add((pf_code, ns_jlw.has_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_organe'][0])))
-        g.add((pf_code, ns_jlw.has_broad_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_broad_organe'][0])))
-        g.add((pf_code, ns_jlw.has_tissue, rdflib.term.URIRef(jlw_uri + plant_parts['organism_tissue'][0])))
-        g.add((pf_code, ns_jlw.has_subsystem, rdflib.term.URIRef(jlw_uri + plant_parts['organism_subsystem'][0])))
+        # g.add((pf_code, ns_jlw.has_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_organe'][0])))
+        # g.add((pf_code, ns_jlw.has_broad_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_broad_organe'][0])))
+        # g.add((pf_code, ns_jlw.has_tissue, rdflib.term.URIRef(jlw_uri + plant_parts['organism_tissue'][0])))
+        # g.add((pf_code, ns_jlw.has_subsystem, rdflib.term.URIRef(jlw_uri + plant_parts['organism_subsystem'][0])))
         
         # Add GNPS Dashborad link for pos & neg: only if sample_filename_pos column exists and is not NaN and MassIVE id is present
         if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
@@ -113,17 +115,17 @@ for directory in tqdm(samples_dir):
                 g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), FOAF.depiction, rdflib.URIRef(gnps_tic_pic))) 
                 
         # Add assay objects to samples
-        for assay_id, target in zip(
-            ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
-            'bio_tryp_brucei_rhodesiense_2ugml_inhibition', 'bio_tryp_cruzi_10ugml_inhibition', 'bio_l6_cytotoxicity_10ugml_inhibition'], 
-            ['ldonovani_10ugml', 'ldonovani_2ugml', 'Tbrucei_10ugml', 'Tbrucei_2ugml', 'Tcruzi_10ugml', 'L6_10ugml']):            
-                assay = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_" + target)
-                type = rdflib.term.URIRef(jlw_uri + target)
-                g.add((sample, ns_jlw.has_bioassay_results, assay))
-                g.add((assay, RDFS.comment, rdflib.term.Literal(f"{target} assay of {metadata.sample_id[0]}")))
-                g.add((assay, ns_jlw.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
-                g.add((assay, RDF.type, type))
-                g.add((type, RDFS.subClassOf, ns_jlw.BioAssayResults))
+        # for assay_id, target in zip(
+        #     ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
+        #     'bio_tryp_brucei_rhodesiense_2ugml_inhibition', 'bio_tryp_cruzi_10ugml_inhibition', 'bio_l6_cytotoxicity_10ugml_inhibition'], 
+        #     ['ldonovani_10ugml', 'ldonovani_2ugml', 'Tbrucei_10ugml', 'Tbrucei_2ugml', 'Tcruzi_10ugml', 'L6_10ugml']):            
+        #         assay = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_" + target)
+        #         type = rdflib.term.URIRef(jlw_uri + target)
+        #         g.add((sample, ns_jlw.has_bioassay_results, assay))
+        #         g.add((assay, RDFS.comment, rdflib.term.Literal(f"{target} assay of {metadata.sample_id[0]}")))
+        #         g.add((assay, ns_jlw.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
+        #         g.add((assay, RDF.type, type))
+        #         g.add((type, RDFS.subClassOf, ns_jlw.BioAssayResults))
         
         # Add WD taxonomy link to substance
         metadata_taxo_path = os.path.join(path, directory, 'taxo_output', directory + '_taxo_metadata.tsv')
