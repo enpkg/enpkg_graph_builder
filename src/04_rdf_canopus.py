@@ -53,12 +53,15 @@ for directory in tqdm(samples_dir):
         open(sirius_param_path)
     except FileNotFoundError:
         continue
+    except NotADirectoryError:
+        continue
     try:
         metadata = pd.read_csv(metadata_path, sep='\t')
     except FileNotFoundError:
         continue
     except NotADirectoryError:
         continue
+
     
     with open (sirius_param_path) as file:    
             params_list = yaml.load(file, Loader=yaml.FullLoader)
@@ -84,6 +87,8 @@ for directory in tqdm(samples_dir):
                 g.add((canopus_annotation_id, RDF.type, ns_jlw.SiriusCanopusAnnotation))
         except FileNotFoundError:
             pass
+        except NotADirectoryError:
+            continue
         
     elif sirius_version == 5:
         # Canopus NPC results integration for sirius 5
@@ -106,6 +111,8 @@ for directory in tqdm(samples_dir):
                 g.add((canopus_annotation_id, RDF.type, ns_jlw.SiriusCanopusAnnotation))
         except FileNotFoundError:
             pass
+        except NotADirectoryError:
+            continue
         
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
