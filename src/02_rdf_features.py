@@ -65,11 +65,13 @@ for directory in tqdm(samples_dir):
         feature_list = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_MzMine_feature_list_" + ionization_mode)
 
         if ionization_mode == 'pos':
-            g.add((sample, ns_jlw.has_MzMine_feature_list_pos, feature_list))
+            lc_ms = rdflib.term.URIRef(jlw_uri + metadata['sample_filename_pos'][0])
         elif ionization_mode == 'neg':
-            g.add((sample, ns_jlw.has_MzMine_feature_list_neg, feature_list))
+            lc_ms = rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0])
+        
+        g.add((lc_ms, ns_jlw.has_MzMine_feature_list, feature_list))
 
-        g.add((feature_list, RDF.type, ns_jlw.MzMineChromatogram))
+        g.add((feature_list, RDF.type, ns_jlw.FeatureList))
         g.add((feature_list, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
         g.add((feature_list, RDFS.comment, rdflib.term.Literal(f"MzMine feature list in {ionization_mode} ionization mode of {metadata.sample_id[0]}")))
         # Add feature and their metadat to feature list
@@ -77,6 +79,7 @@ for directory in tqdm(samples_dir):
             feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(int(row['row ID'])) + '_' + ionization_mode) 
             g.add((feature_list, ns_jlw.has_MZmine_feature, feature_id))
             g.add((feature_id, RDF.type, ns_jlw.MzMineFeature))
+            g.add((feature_id, ns_jlw.is_a_feature_of, sample))
             g.add((feature_id, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
             g.add((feature_id, ns_jlw.has_row_id, rdflib.term.Literal(row['row ID'], datatype=XSD.integer)))
             g.add((feature_id, ns_jlw.has_parent_mass, rdflib.term.Literal(row['row m/z'], datatype=XSD.float)))
