@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-p', '--sample_dir_path', required=True,
                     help='The path to the directory where samples folders to process are located')
 parser.add_argument('-db', '--metadata_path', required=True,
-                    help='The path to the samples metadata SQL DB')
+                    help='The path to the structures metadata SQL DB')
 
 
 args = parser.parse_args()
