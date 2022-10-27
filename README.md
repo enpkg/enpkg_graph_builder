@@ -1,4 +1,4 @@
-# graph_builder
+# enpkg_graph_builder
 Build the Experimental Natural Products Knowledge Graph
 
 ⚙️ Workflow part of [enpkg_workflow](https://github.com/enpkg/enpkg_workflow).
