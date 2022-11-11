@@ -76,9 +76,11 @@ for directory in tqdm(samples_dir):
         g.add((feature_list, RDFS.comment, rdflib.term.Literal(f"MzMine feature list in {ionization_mode} ionization mode of {metadata.sample_id[0]}")))
         # Add feature and their metadat to feature list
         for _, row in quant_table.iterrows():
-            feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(int(row['row ID'])) + '_' + ionization_mode) 
+            usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(row['row ID']))
+            feature_id = rdflib.term.URIRef(jlw_uri + 'feature_' + usi)
             g.add((feature_list, ns_jlw.has_MZmine_feature, feature_id))
             g.add((feature_id, RDF.type, ns_jlw.MzMineFeature))
+            g.add((feature_id, RDFS.label, rdflib.term.Literal(f"feature {usi}")))
             g.add((feature_id, ns_jlw.is_a_feature_of, sample))
             g.add((feature_id, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
             g.add((feature_id, ns_jlw.has_row_id, rdflib.term.Literal(row['row ID'], datatype=XSD.integer)))
@@ -87,7 +89,6 @@ for directory in tqdm(samples_dir):
             g.add((feature_id, ns_jlw.has_feature_area, rdflib.term.Literal(row[area_col], datatype=XSD.float)))
             g.add((feature_id, ns_jlw.has_relative_feature_area, rdflib.term.Literal(row[area_col]/max_area, datatype=XSD.float)))
             
-            usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(row['row ID']))
             g.add((feature_id, ns_jlw.has_usi, rdflib.term.Literal(usi)))
             link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
             g.add((feature_id, ns_jlw.gnps_dashboard_view, rdflib.URIRef(link_spectrum)))
@@ -98,4 +99,4 @@ pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
 pathout = os.path.normpath(os.path.join(pathout, f'features_{ionization_mode}.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Result are in : {pathout}')
+print(f'Results are in : {pathout}')

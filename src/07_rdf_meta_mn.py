@@ -69,7 +69,7 @@ g.add((ns_jlw.GNPSConsensusSpectrum, RDFS.comment, rdflib.term.Literal("A MS2 sp
 nx_graph = nx.read_graphml(mn_graphml_path)
 
 feature_key = pd.read_csv(feature_key_path)
-dic_feature_id_to_original_feature_id = pd.Series(feature_key.original_feature_id.values,index=feature_key.feature_id).to_dict()
+dic_feature_id_to_original_feature_id = pd.Series(feature_key.original_feature_id.values, index=feature_key.feature_id).to_dict()
 
 cluster_id = pd.read_csv(cluster_id_path, sep= '\t')
 dic_feature_id_to_cluster_id = pd.Series(cluster_id['#ClusterIdx'].values,index=cluster_id['#Scan']).to_dict()

@@ -3,7 +3,7 @@ import argparse
 import textwrap
 import pandas as pd
 import rdflib
-from rdflib import Graph, URIRef, Literal, BNode, Namespace
+from rdflib import Graph, Namespace
 from rdflib.namespace import RDF, RDFS, XSD, FOAF
 from pathlib import Path
 from tqdm import tqdm
@@ -50,6 +50,10 @@ ns_jlw = rdflib.Namespace(jlw_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_jlw)
 
+target_chembl_url = 'https://www.ebi.ac.uk/chembl/target_report_card/'
+g.add((ns_jlw.ChEMBLTarget, RDFS.subClassOf, ns_jlw.XRef))
+
+
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
@@ -60,6 +64,8 @@ g.add((ns_jlw.LabProcess, RDF.type, RDF.Property))
 g.add((ns_jlw.LabProcess, RDFS.label, rdflib.term.Literal("A lab process")))
 g.add((ns_jlw.has_lab_process, RDF.type, ns_jlw.LabProcess))
 g.add((ns_jlw.WDTaxon, RDFS.subClassOf, ns_jlw.XRef))
+g.add((ns_jlw.BioAssayResults, RDF.type, RDF.Property))
+g.add((ns_jlw.SwissTPHBioAssay, RDFS.subClassOf, ns_jlw.BioAssayResults))
 
 for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
@@ -84,14 +90,14 @@ for directory in tqdm(samples_dir):
         g.add((sample, ns_jlw.type, ns_jlw.LabExtract))
         g.add((sample, RDFS.comment, rdflib.term.Literal(f"Extract {metadata.sample_id[0]}")))
         
-        # plant_parts = metadata[['organism_organe', 'organism_broad_organe', 'organism_tissue', 'organism_subsystem']].copy()
-        # plant_parts.fillna('unkown', inplace=True)
-        # plant_parts.replace(' ', '_', regex=True, inplace=True)
+        plant_parts = metadata[['organism_organe', 'organism_broad_organe', 'organism_tissue', 'organism_subsystem']].copy()
+        plant_parts.fillna('unkown', inplace=True)
+        plant_parts.replace(' ', '_', regex=True, inplace=True)
         
-        # g.add((pf_code, ns_jlw.has_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_organe'][0])))
-        # g.add((pf_code, ns_jlw.has_broad_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_broad_organe'][0])))
-        # g.add((pf_code, ns_jlw.has_tissue, rdflib.term.URIRef(jlw_uri + plant_parts['organism_tissue'][0])))
-        # g.add((pf_code, ns_jlw.has_subsystem, rdflib.term.URIRef(jlw_uri + plant_parts['organism_subsystem'][0])))
+        g.add((pf_code, ns_jlw.has_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_organe'][0])))
+        g.add((pf_code, ns_jlw.has_broad_organe, rdflib.term.URIRef(jlw_uri + plant_parts['organism_broad_organe'][0])))
+        g.add((pf_code, ns_jlw.has_tissue, rdflib.term.URIRef(jlw_uri + plant_parts['organism_tissue'][0])))
+        g.add((pf_code, ns_jlw.has_subsystem, rdflib.term.URIRef(jlw_uri + plant_parts['organism_subsystem'][0])))
         
         # Add GNPS Dashborad link for pos & neg: only if sample_filename_pos column exists and is not NaN and MassIVE id is present
         if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
@@ -114,18 +120,22 @@ for directory in tqdm(samples_dir):
                 g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), ns_jlw.has_gnpslcms_link_neg, rdflib.URIRef(gnps_dashboard_link)))
                 g.add((rdflib.term.URIRef(jlw_uri + metadata['sample_filename_neg'][0]), FOAF.depiction, rdflib.URIRef(gnps_tic_pic))) 
                 
-        # Add assay objects to samples
-        # for assay_id, target in zip(
-        #     ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
-        #     'bio_tryp_brucei_rhodesiense_2ugml_inhibition', 'bio_tryp_cruzi_10ugml_inhibition', 'bio_l6_cytotoxicity_10ugml_inhibition'], 
-        #     ['ldonovani_10ugml', 'ldonovani_2ugml', 'Tbrucei_10ugml', 'Tbrucei_2ugml', 'Tcruzi_10ugml', 'L6_10ugml']):            
-        #         assay = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_" + target)
-        #         type = rdflib.term.URIRef(jlw_uri + target)
-        #         g.add((sample, ns_jlw.has_bioassay_results, assay))
-        #         g.add((assay, RDFS.comment, rdflib.term.Literal(f"{target} assay of {metadata.sample_id[0]}")))
-        #         g.add((assay, ns_jlw.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
-        #         g.add((assay, RDF.type, type))
-        #         g.add((type, RDFS.subClassOf, ns_jlw.BioAssayResults))
+        
+        for assay_id, target, chembl_id in zip(
+            ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
+            'bio_tryp_brucei_rhodesiense_2ugml_inhibition', 'bio_tryp_cruzi_10ugml_inhibition', 'bio_l6_cytotoxicity_10ugml_inhibition'], 
+            ['has_Ldonovani_10ugml', 'has_Ldonovani_2ugml', 'has_Tbruceirhod_10ugml', 'has_Tbruceirhod_2ugml', 'has_Tcruzi_10ugml', 'has_L6_10ugml'],
+            ['CHEMBL367', 'CHEMBL367', 'CHEMBL612348', 'CHEMBL612348', 'CHEMBL368', None]):            
+                assay = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_" + target)
+                type = rdflib.term.URIRef(jlw_uri + target)
+                g.add((sample, ns_jlw.has_bioassay_results, assay))
+                g.add((assay, RDFS.label, rdflib.term.Literal(f"{target} assay of {metadata.sample_id[0]}")))
+                g.add((assay, ns_jlw.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
+                g.add((assay, RDF.type, ns_jlw.SwissTPHBioAssay))
+                if chembl_id is not None:
+                    target_id_uri = rdflib.term.URIRef(target_chembl_url + chembl_id)
+                    g.add((assay, ns_jlw.target_id, target_id_uri))
+                    g.add((target_id_uri, RDF.type, ns_jlw.ChEMBLTarget))             
         
         # Add WD taxonomy link to substance
         metadata_taxo_path = os.path.join(path, directory, 'taxo_output', directory + '_taxo_metadata.tsv')
@@ -152,4 +162,4 @@ pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
 pathout = os.path.normpath(os.path.join(pathout, 'metadata.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Result are in : {pathout}')
+print(f'Results are in : {pathout}')

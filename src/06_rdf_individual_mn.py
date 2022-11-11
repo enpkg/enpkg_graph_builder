@@ -56,12 +56,17 @@ for directory in tqdm(samples_dir):
     for node in graph.edges(data=True):
         s = node[0]
         t = node[1]
-        s_feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(s) + '_' + ionization_mode)
-        t_feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(t) + '_' + ionization_mode)
+        # s_feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(s) + '_' + ionization_mode)
+        # t_feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(t) + '_' + ionization_mode)
+        # g.add((s_feature_id, ns_jlw.is_cosine_similar_to, t_feature_id))        
+        usi_s = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode + '.mgf:scan:' + str(s) 
+        s_feature_id = rdflib.term.URIRef(jlw_uri + 'feature_' + usi_s)
+        usi_t = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode + '.mgf:scan:' + str(t) 
+        t_feature_id = rdflib.term.URIRef(jlw_uri + 'feature_' + usi_t)
         g.add((s_feature_id, ns_jlw.is_cosine_similar_to, t_feature_id))
 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
 pathout = os.path.normpath(os.path.join(pathout, f'indivual_mn_{ionization_mode}.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Result are in : {pathout}')   
+print(f'Results are in : {pathout}')   

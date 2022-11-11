@@ -60,15 +60,19 @@ for directory in tqdm(samples_dir):
         continue
     for _, row in csi_annotations.iterrows():
         feature_id_int = row['id'].rsplit('_', 1)[1]
-        feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(feature_id_int) + '_' + ionization_mode)
-        sirius_annotation_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_sirius_annotation_" + str(feature_id_int)  + '_' + ionization_mode)
+        # feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(feature_id_int) + '_' + ionization_mode)
+        # sirius_annotation_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_sirius_annotation_" + str(feature_id_int)  + '_' + ionization_mode)
+        
+        usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(feature_id_int))
+        feature_id = rdflib.term.URIRef(jlw_uri + 'feature_' + usi)
+        sirius_annotation_id = rdflib.term.URIRef(jlw_uri + "sirius_" + usi)
         
         InChIkey2D = rdflib.term.URIRef(jlw_uri + row['InChIkey2D'])
         
         g.add((feature_id, ns_jlw.has_sirius_annotation, sirius_annotation_id))
         g.add((sirius_annotation_id, ns_jlw.has_InChIkey2D, InChIkey2D))
         g.add((sirius_annotation_id, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
-        g.add((sirius_annotation_id, RDFS.comment, rdflib.term.Literal('Sirius annotation')))
+        g.add((sirius_annotation_id, RDFS.label, rdflib.term.Literal(f"sirius annotation of {usi}")))
         #g.add((feature_id, ns_jlw.has_annotation, InChIkey2D))
         g.add((sirius_annotation_id, ns_jlw.has_sirius_adduct, rdflib.term.Literal(row['adduct'])))
         g.add((sirius_annotation_id, ns_jlw.has_sirius_score, rdflib.term.Literal(row['SiriusScore'], datatype=XSD.float)))
@@ -82,4 +86,4 @@ pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
 pathout = os.path.normpath(os.path.join(pathout, f'sirius_{ionization_mode}.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Result are in : {pathout}')     
+print(f'Results are in : {pathout}')     
