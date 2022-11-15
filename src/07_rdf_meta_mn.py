@@ -17,7 +17,11 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        TO DO
+        This script generate a RDF graph (.ttl format) from sa GNPS meta-MN (classical MN on aggregated unaligned spectra) 
+         --------------------------------
+            Arguments:
+            - Path to the directory where samples folders are located
+            - Ionization mode to process
         '''))
 
 parser.add_argument('-p', '--sample_dir_path', required=True,

@@ -17,7 +17,11 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        TO DO
+        This script generate a RDF graph (.ttl format) from chemical structures metadata
+         --------------------------------
+            Arguments:
+            - Path to the directory where samples folders are located
+            - Path to the SQL metadata DB with compounds' metadata
         '''))
 
 parser.add_argument('-p', '--sample_dir_path', required=True,
