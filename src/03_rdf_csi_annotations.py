@@ -35,15 +35,15 @@ g = Graph()
 nm = g.namespace_manager
 
 # Create jlw namespace
-jlw_uri = "https://www.sinergiawolfender.org/jlw/"
-ns_jlw = rdflib.Namespace(jlw_uri)
+kg_uri = "https://enpkg.commons-lab.org/kg/"
+ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
-nm.bind(prefix, ns_jlw)
+nm.bind(prefix, ns_kg)
 
-g.add((ns_jlw.SiriusStructureAnnotation, RDFS.subClassOf, ns_jlw.Annotation))
-g.add((ns_jlw.InChIkey2D, RDFS.subClassOf, ns_jlw.ChemicalEntity))
-g.add((ns_jlw.Annotation, RDFS.comment, rdflib.term.Literal("A 2D structure that correspond to the annotation of at least 1 feature")))
-g.add((ns_jlw.InChIkey2D, RDFS.comment, rdflib.term.Literal("A 2D structure")))
+g.add((ns_kg.SiriusStructureAnnotation, RDFS.subClassOf, ns_kg.Annotation))
+g.add((ns_kg.InChIkey2D, RDFS.subClassOf, ns_kg.ChemicalEntity))
+g.add((ns_kg.Annotation, RDFS.comment, rdflib.term.Literal("A 2D structure that correspond to the annotation of at least 1 feature")))
+g.add((ns_kg.InChIkey2D, RDFS.comment, rdflib.term.Literal("A 2D structure")))
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
@@ -60,26 +60,26 @@ for directory in tqdm(samples_dir):
         continue
     for _, row in csi_annotations.iterrows():
         feature_id_int = row['id'].rsplit('_', 1)[1]
-        # feature_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_feature_" + str(feature_id_int) + '_' + ionization_mode)
-        # sirius_annotation_id = rdflib.term.URIRef(jlw_uri + metadata.sample_id[0] + "_sirius_annotation_" + str(feature_id_int)  + '_' + ionization_mode)
+        # feature_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_feature_" + str(feature_id_int) + '_' + ionization_mode)
+        # sirius_annotation_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_sirius_annotation_" + str(feature_id_int)  + '_' + ionization_mode)
         
         usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(feature_id_int))
-        feature_id = rdflib.term.URIRef(jlw_uri + 'feature_' + usi)
-        sirius_annotation_id = rdflib.term.URIRef(jlw_uri + "sirius_" + usi)
+        feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
+        sirius_annotation_id = rdflib.term.URIRef(kg_uri + "sirius_" + usi)
         
-        InChIkey2D = rdflib.term.URIRef(jlw_uri + row['InChIkey2D'])
+        InChIkey2D = rdflib.term.URIRef(kg_uri + row['InChIkey2D'])
         
-        g.add((feature_id, ns_jlw.has_sirius_annotation, sirius_annotation_id))
-        g.add((sirius_annotation_id, ns_jlw.has_InChIkey2D, InChIkey2D))
-        g.add((sirius_annotation_id, ns_jlw.has_ionization, rdflib.term.Literal(ionization_mode)))
+        g.add((feature_id, ns_kg.has_sirius_annotation, sirius_annotation_id))
+        g.add((sirius_annotation_id, ns_kg.has_InChIkey2D, InChIkey2D))
+        g.add((sirius_annotation_id, ns_kg.has_ionization, rdflib.term.Literal(ionization_mode)))
         g.add((sirius_annotation_id, RDFS.label, rdflib.term.Literal(f"sirius annotation of {usi}")))
-        #g.add((feature_id, ns_jlw.has_annotation, InChIkey2D))
-        g.add((sirius_annotation_id, ns_jlw.has_sirius_adduct, rdflib.term.Literal(row['adduct'])))
-        g.add((sirius_annotation_id, ns_jlw.has_sirius_score, rdflib.term.Literal(row['SiriusScore'], datatype=XSD.float)))
-        g.add((sirius_annotation_id, ns_jlw.has_zodiac_score, rdflib.term.Literal(row['ZodiacScore'], datatype=XSD.float)))
-        g.add((sirius_annotation_id, ns_jlw.has_cosmic_score, rdflib.term.Literal(row['ConfidenceScore'], datatype=XSD.float)))       
-        g.add((InChIkey2D, RDF.type, ns_jlw.InChIkey2D))
-        g.add((sirius_annotation_id, RDF.type, ns_jlw.SiriusStructureAnnotation))
+        #g.add((feature_id, ns_kg.has_annotation, InChIkey2D))
+        g.add((sirius_annotation_id, ns_kg.has_sirius_adduct, rdflib.term.Literal(row['adduct'])))
+        g.add((sirius_annotation_id, ns_kg.has_sirius_score, rdflib.term.Literal(row['SiriusScore'], datatype=XSD.float)))
+        g.add((sirius_annotation_id, ns_kg.has_zodiac_score, rdflib.term.Literal(row['ZodiacScore'], datatype=XSD.float)))
+        g.add((sirius_annotation_id, ns_kg.has_cosmic_score, rdflib.term.Literal(row['ConfidenceScore'], datatype=XSD.float)))       
+        g.add((InChIkey2D, RDF.type, ns_kg.InChIkey2D))
+        g.add((sirius_annotation_id, RDF.type, ns_kg.SiriusStructureAnnotation))
 
         
 pathout = os.path.join(sample_dir_path, "004_rdf/")

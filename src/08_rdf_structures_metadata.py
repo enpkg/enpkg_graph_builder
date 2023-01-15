@@ -43,26 +43,26 @@ g = Graph()
 nm = g.namespace_manager
 
 # Create jlw namespace
-jlw_uri = "https://www.sinergiawolfender.org/jlw/"
-ns_jlw = rdflib.Namespace(jlw_uri)
+kg_uri = "https://enpkg.commons-lab.org/kg/"
+ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
-nm.bind(prefix, ns_jlw)
+nm.bind(prefix, ns_kg)
 
-g.add((ns_jlw.InChIkey, RDFS.subClassOf, ns_jlw.ChemicalEntity))
-g.add((ns_jlw.WDChemical, RDFS.subClassOf, ns_jlw.XRef))
+g.add((ns_kg.InChIkey, RDFS.subClassOf, ns_kg.ChemicalEntity))
+g.add((ns_kg.WDChemical, RDFS.subClassOf, ns_kg.XRef))
 
 for _, row in df_metadata.iterrows():
-    short_ik = rdflib.term.URIRef(jlw_uri + row['short_inchikey'])
-    g.add((short_ik, ns_jlw.has_smiles_2d, rdflib.term.Literal(row['smiles'])))
-    g.add((short_ik, ns_jlw.has_np_pathway, rdflib.term.Literal(row['npc_pathway'])))
-    g.add((short_ik, ns_jlw.has_np_superclass, rdflib.term.Literal(row['npc_superclass'])))
-    g.add((short_ik, ns_jlw.has_np_class, rdflib.term.Literal(row['npc_class'])))
+    short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
+    g.add((short_ik, ns_kg.has_smiles_2d, rdflib.term.Literal(row['smiles'])))
+    g.add((short_ik, ns_kg.has_np_pathway, rdflib.term.Literal(row['npc_pathway'])))
+    g.add((short_ik, ns_kg.has_np_superclass, rdflib.term.Literal(row['npc_superclass'])))
+    g.add((short_ik, ns_kg.has_np_class, rdflib.term.Literal(row['npc_class'])))
     if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] != None):
-        g.add((short_ik, ns_jlw.is_InChIkey2D_of, rdflib.term.URIRef(jlw_uri + row['inchikey'])))
-        g.add((rdflib.term.URIRef(jlw_uri + row['inchikey']), ns_jlw.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
-        g.add((rdflib.term.URIRef(jlw_uri + row['inchikey']), RDF.type, ns_jlw.InChIkey))
-        g.add((rdflib.term.URIRef(jlw_uri + row['inchikey']), ns_jlw.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
-        g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_jlw.WDChemical))
+        g.add((short_ik, ns_kg.is_InChIkey2D_of, rdflib.term.URIRef(kg_uri + row['inchikey'])))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), RDF.type, ns_kg.InChIkey))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
+        g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_kg.WDChemical))
                 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
