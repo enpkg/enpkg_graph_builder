@@ -1,5 +1,6 @@
 import os
 import argparse
+import json
 import textwrap
 import pandas as pd
 import rdflib
@@ -34,6 +35,9 @@ ionization_mode = args.ionization_mode
 g = Graph()
 nm = g.namespace_manager
 
+with open(os.path.normpath('data/adducts_formatter.json')) as json_file:
+    adducts_dic = json.load(json_file)
+
 # Create jlw namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
@@ -54,6 +58,7 @@ for directory in tqdm(samples_dir):
     try:
         csi_annotations = pd.read_csv(csi_path, sep='\t')
         metadata = pd.read_csv(metadata_path, sep='\t')
+        csi_annotations.replace({"adduct": adducts_dic},inplace=True)
     except FileNotFoundError:
         continue
     except NotADirectoryError:

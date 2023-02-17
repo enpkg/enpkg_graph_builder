@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 import textwrap
 import rdflib
+import json
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
 from tqdm import tqdm
@@ -46,6 +47,9 @@ nm.bind(prefix, ns_kg)
 
 g.add((ns_kg.IsdbAnnotation, RDFS.subClassOf, ns_kg.Annotation))
 
+with open(os.path.normpath('data/adducts_formatter.json')) as json_file:
+    adducts_dic = json.load(json_file)
+
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
@@ -55,6 +59,8 @@ for directory in tqdm(samples_dir):
     try:
         isdb_annotations = pd.read_csv(isdb_path, sep='\t')
         metadata = pd.read_csv(metadata_path, sep='\t')
+        isdb_annotations.adduct.fillna('[M+H]+', inplace=True)
+        isdb_annotations.replace({"adduct": adducts_dic},inplace=True)
     except FileNotFoundError:
         continue
     except NotADirectoryError:
