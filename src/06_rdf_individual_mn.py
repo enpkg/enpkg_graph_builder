@@ -38,12 +38,12 @@ kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
+
 g.add((ns_kg.LFpair, RDFS.subClassOf, ns_kg.SpectralPair))
 
 path = os.path.normpath(sample_dir_path)
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
-indX = 0
 
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
@@ -85,23 +85,9 @@ for directory in tqdm(samples_dir):
         g.add((link_node, ns_kg.has_member, t_feature_id))
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))
         g.add((link_node, ns_kg.has_mass_difference, rdflib.term.Literal(mass_diff, datatype=XSD.float)))
-        if len(g) > 1000000:
-            #Export Graph:
-            pathout_export = os.path.normpath(os.path.join(pathout, f'indivual_mn_{ionization_mode}_{indX}.ttl'))
-            indX += 1
-            print(f'Exporting Graph {indX} in: {pathout_export}')
-            g.serialize(destination=pathout_export, format="ttl", encoding="utf-8")
-            
-            # New Graph
-            g = Graph()
-            nm = g.namespace_manager
-            kg_uri = "https://enpkg.commons-lab.org/kg/"
-            ns_kg = rdflib.Namespace(kg_uri)
-            prefix = "enpkg"
-            nm.bind(prefix, ns_kg)
-            g.add((ns_kg.LFpair, RDFS.subClassOf, ns_kg.SpectralPair))
-        
-pathout_export = os.path.normpath(os.path.join(pathout, f'indivual_mn_{ionization_mode}_{indX}.ttl'))
-indX += 1
-print(f'Exporting Graph {indX} in: {pathout_export}')
-g.serialize(destination=pathout_export, format="ttl", encoding="utf-8")  
+
+pathout = os.path.join(sample_dir_path, "004_rdf/")
+os.makedirs(pathout, exist_ok=True)
+pathout = os.path.normpath(os.path.join(pathout, f'indivual_mn_{ionization_mode}.ttl'))
+g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+print(f'Results are in : {pathout}')  
