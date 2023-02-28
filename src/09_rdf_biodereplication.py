@@ -41,11 +41,17 @@ path_bio = os.path.normpath(args.bio_metadata_path)
 g = Graph()
 nm = g.namespace_manager
 
-# Create jlw namespace
+# Create enpkg namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
+
+# Create enpkgdemo namespace
+demo_uri = "https://enpkg.commons-lab.org/demo/"
+ns_demo = rdflib.Namespace(demo_uri)
+prefix = "enpkgdemo"
+nm.bind(prefix, ns_demo)
 
 compound_chembl_url = 'https://www.ebi.ac.uk/chembl/compound_report_card/'
 target_chembl_url = 'https://www.ebi.ac.uk/chembl/target_report_card/'
@@ -79,41 +85,41 @@ for _, row in tqdm(df_bio_metadata.iterrows(), total = len(df_bio_metadata)):
     target_id_uri = rdflib.term.URIRef(target_chembl_url + row['target_chembl_id'])
     assay_id_uri = rdflib.term.URIRef(assay_chembl_url + row['assay_chembl_id'])
     document_id_uri = rdflib.term.URIRef(document_chembl_url + row['document_chembl_id'])
-    compound_activity_uri = rdflib.term.URIRef(kg_uri + 'chembl_activity_' + str(i))
+    compound_activity_uri = rdflib.term.URIRef(demo_uri + 'chembl_activity_' + str(i))
     i += 1
     
     g.add((rdflib.term.URIRef(kg_uri + row['short_inchikey']), ns_kg.is_InChIkey2D_of, uri_ik))
     g.add((rdflib.term.URIRef(kg_uri + row['short_inchikey']), RDF.type, ns_kg.InChIkey2D)) 
-    g.add((uri_ik, ns_kg.has_chembl_id, chembl_id_uri))    
-    g.add((chembl_id_uri, ns_kg.has_chembl_activity, compound_activity_uri))
-    g.add((target_id_uri, ns_kg.target_name, rdflib.term.Literal(row['target_pref_name'])))
+    g.add((uri_ik, ns_demo.has_chembl_id, chembl_id_uri))    
+    g.add((chembl_id_uri, ns_demo.has_chembl_activity, compound_activity_uri))
+    g.add((target_id_uri, ns_demo.target_name, rdflib.term.Literal(row['target_pref_name'])))
     
-    g.add((compound_activity_uri, ns_kg.target_id, target_id_uri))
-    g.add((compound_activity_uri, ns_kg.assay_id, assay_id_uri))
-    g.add((compound_activity_uri, ns_kg.target_name, rdflib.term.Literal(row['target_pref_name'])))
-    g.add((compound_activity_uri, ns_kg.activity_type, rdflib.term.Literal(row['standard_type'])))
-    g.add((compound_activity_uri, ns_kg.activity_relation, rdflib.term.Literal(row['standard_relation'])))
-    g.add((compound_activity_uri, ns_kg.activity_value, rdflib.term.Literal(row['standard_value'], datatype=XSD.float)))
-    g.add((compound_activity_uri, ns_kg.activity_unit, rdflib.term.Literal(row['standard_units'])))
-    g.add((compound_activity_uri, ns_kg.stated_in_document, document_id_uri))
-    g.add((document_id_uri, ns_kg.journal_name, rdflib.term.Literal(row['document_journal'])))
-    g.add((compound_activity_uri, RDFS.comment, rdflib.term.Literal(f"{row['standard_type']} of {row['molecule_chembl_id']} in assay {row['assay_chembl_id']} against {row['target_chembl_id']} ({row['target_pref_name']})")))
+    g.add((compound_activity_uri, ns_demo.target_id, target_id_uri))
+    g.add((compound_activity_uri, ns_demo.assay_id, assay_id_uri))
+    g.add((compound_activity_uri, ns_demo.target_name, rdflib.term.Literal(row['target_pref_name'])))
+    g.add((compound_activity_uri, ns_demo.activity_type, rdflib.term.Literal(row['standard_type'])))
+    g.add((compound_activity_uri, ns_demo.activity_relation, rdflib.term.Literal(row['standard_relation'])))
+    g.add((compound_activity_uri, ns_demo.activity_value, rdflib.term.Literal(row['standard_value'], datatype=XSD.float)))
+    g.add((compound_activity_uri, ns_demo.activity_unit, rdflib.term.Literal(row['standard_units'])))
+    g.add((compound_activity_uri, ns_demo.stated_in_document, document_id_uri))
+    g.add((document_id_uri, ns_demo.journal_name, rdflib.term.Literal(row['document_journal'])))
+    g.add((compound_activity_uri, RDFS.label, rdflib.term.Literal(f"{row['standard_type']} of {row['molecule_chembl_id']} in assay {row['assay_chembl_id']} against {row['target_chembl_id']} ({row['target_pref_name']})")))
 
-    g.add((target_id_uri, RDF.type, ns_kg.ChEMBLTarget))
-    g.add((chembl_id_uri, RDF.type, ns_kg.ChEMBLChemical))
-    g.add((document_id_uri, RDF.type, ns_kg.ChEMBLDocument))
-    g.add((assay_id_uri, RDF.type, ns_kg.ChEMBLAssay))
-    g.add((compound_activity_uri, RDF.type, ns_kg.ChEMBLAssayResults))
-    
-    if (inchikey not in df_metadata['inchikey']):    
+    g.add((target_id_uri, RDF.type, ns_demo.ChEMBLTarget))
+    g.add((chembl_id_uri, RDF.type, ns_demo.ChEMBLChemical))
+    g.add((document_id_uri, RDF.type, ns_demo.ChEMBLDocument))
+    g.add((assay_id_uri, RDF.type, ns_demo.ChEMBLAssay))
+    g.add((compound_activity_uri, RDF.type, ns_demo.ChEMBLAssayResults))
+
+    if inchikey not in df_metadata['inchikey']:
         g.add((uri_ik, ns_kg.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
         g.add((uri_ik, RDF.type, ns_kg.InChIkey))
-        if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] != None):
+        if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] is not None):
             g.add((uri_ik, ns_kg.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
             g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_kg.WDChemical))
 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
-pathout = os.path.normpath(os.path.join(pathout, f'chembl_metadata.ttl'))
+pathout = os.path.normpath(os.path.join(pathout, 'chembl_metadata.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
 print(f'Result are in : {pathout}') 

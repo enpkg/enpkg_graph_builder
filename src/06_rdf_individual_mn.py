@@ -40,6 +40,8 @@ prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
 g.add((ns_kg.LFpair, RDFS.subClassOf, ns_kg.SpectralPair))
+g.add((ns_kg.has_member_1, RDFS.subPropertyOf, ns_kg.has_member))
+g.add((ns_kg.has_member_2, RDFS.subPropertyOf, ns_kg.has_member))
 
 path = os.path.normpath(sample_dir_path)
 pathout = os.path.join(sample_dir_path, "004_rdf/")
@@ -64,12 +66,9 @@ for directory in tqdm(samples_dir):
         t = node[1]
         cosine = node[2]['weight']
         
-        mass_diff = abs(graph_metadata[graph_metadata.feature_id == int(s)]['precursor_mz'].values[0] - graph_metadata[graph_metadata.feature_id == int(t)]['precursor_mz'].values[0])
+        mass_diff = abs(float(graph_metadata[graph_metadata.feature_id == int(s)]['precursor_mz'].values[0] - graph_metadata[graph_metadata.feature_id == int(t)]['precursor_mz'].values[0]))
         component_index = graph_metadata[graph_metadata.feature_id == int(s)]['component_id'].values[0]
-        
-        # s_feature_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_feature_" + str(s) + '_' + ionization_mode)
-        # t_feature_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_feature_" + str(t) + '_' + ionization_mode)
-        # g.add((s_feature_id, ns_kg.is_cosine_similar_to, t_feature_id))        
+
         usi_s = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode + '.mgf:scan:' + str(s) 
         s_feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi_s)
         usi_t = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode + '.mgf:scan:' + str(t) 
@@ -81,10 +80,15 @@ for directory in tqdm(samples_dir):
         
         link_node = rdflib.term.URIRef(kg_uri + 'lcms_feature_pair_' + usi_s + '_' + usi_t)
         g.add((link_node, RDF.type, ns_kg.LFpair))
-        g.add((link_node, ns_kg.has_member, s_feature_id))
-        g.add((link_node, ns_kg.has_member, t_feature_id))
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))
         g.add((link_node, ns_kg.has_mass_difference, rdflib.term.Literal(mass_diff, datatype=XSD.float)))
+
+        if graph_metadata[graph_metadata.feature_id == int(s)]['precursor_mz'].values[0] > graph_metadata[graph_metadata.feature_id == int(t)]['precursor_mz'].values[0]:
+            g.add((link_node, ns_kg.has_member_1, s_feature_id))
+            g.add((link_node, ns_kg.has_member_2, t_feature_id))
+        else:
+            g.add((link_node, ns_kg.has_member_1, t_feature_id))
+            g.add((link_node, ns_kg.has_member_2, s_feature_id))
 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
