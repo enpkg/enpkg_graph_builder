@@ -53,7 +53,7 @@ g.add((ns_kg.WDChemical, RDFS.subClassOf, ns_kg.XRef))
 
 for _, row in df_metadata.iterrows():
     short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
-    g.add((short_ik, ns_kg.has_smiles_2d, rdflib.term.Literal(row['smiles'])))
+    g.add((short_ik, ns_kg.has_smiles, rdflib.term.Literal(row['smiles'])))
     g.add((short_ik, ns_kg.has_np_pathway, rdflib.term.Literal(row['npc_pathway'])))
     g.add((short_ik, ns_kg.has_np_superclass, rdflib.term.Literal(row['npc_superclass'])))
     g.add((short_ik, ns_kg.has_np_class, rdflib.term.Literal(row['npc_class'])))

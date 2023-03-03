@@ -9,7 +9,7 @@ import argparse
 import textwrap
 from tqdm import tqdm
 
-p = Path(__file__).parents[2]
+p = Path(__file__).parents[1]
 os.chdir(p)
 
 
@@ -31,7 +31,6 @@ parser.add_argument('-chemdb', '--chem_metadata_path', required=True,
                     help='The path to the samples metadata SQL DB')
 parser.add_argument('-biodb', '--bio_metadata_path', required=True,
                     help='The path to the samples ChEMBL metadata FOLDER (will integrate all ChEMBL files)')
-
 
 args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
@@ -59,11 +58,11 @@ assay_chembl_url = 'https://www.ebi.ac.uk/chembl/assay_report_card/'
 document_chembl_url = 'https://www.ebi.ac.uk/chembl/document_report_card/'
 
 g.add((ns_kg.WDChemical, RDFS.subClassOf, ns_kg.XRef))
-g.add((ns_kg.ChEMBLChemical, RDFS.subClassOf, ns_kg.XRef))
-g.add((ns_kg.ChEMBLTarget, RDFS.subClassOf, ns_kg.XRef))
-g.add((ns_kg.ChEMBLDocument, RDFS.subClassOf, ns_kg.XRef))
-g.add((ns_kg.ChEMBLAssay, RDFS.subClassOf, ns_kg.XRef))
-g.add((ns_kg.ChEMBLAssayResults, RDFS.subClassOf, ns_kg.XRef))
+g.add((ns_demo.ChEMBLChemical, RDFS.subClassOf, ns_kg.XRef))
+g.add((ns_demo.ChEMBLTarget, RDFS.subClassOf, ns_kg.XRef))
+g.add((ns_demo.ChEMBLDocument, RDFS.subClassOf, ns_kg.XRef))
+g.add((ns_demo.ChEMBLAssay, RDFS.subClassOf, ns_kg.XRef))
+g.add((ns_demo.ChEMBLAssayResults, RDFS.subClassOf, ns_kg.XRef))
 
 metadata = []
 for file in os.listdir(path_bio):

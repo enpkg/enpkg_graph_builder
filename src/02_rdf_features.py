@@ -70,7 +70,7 @@ for directory in tqdm(samples_dir):
         
         g.add((lc_ms, ns_kg.has_lcms_feature_list, feature_list))
 
-        g.add((feature_list, RDF.type, ns_kg.FeatureList))
+        g.add((feature_list, RDF.type, ns_kg.LCMSFeatureList))
         g.add((feature_list, ns_kg.has_ionization, rdflib.term.Literal(ionization_mode)))
         g.add((feature_list, RDFS.comment, rdflib.term.Literal(f"LCMS feature list in {ionization_mode} ionization mode of {metadata.sample_id[0]}")))
         # Add feature and their metadat to feature list

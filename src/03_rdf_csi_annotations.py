@@ -45,9 +45,8 @@ prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
 g.add((ns_kg.SiriusStructureAnnotation, RDFS.subClassOf, ns_kg.Annotation))
-g.add((ns_kg.InChIkey2D, RDFS.subClassOf, ns_kg.ChemicalEntity))
 g.add((ns_kg.Annotation, RDFS.comment, rdflib.term.Literal("A 2D structure that correspond to the annotation of at least 1 feature")))
-g.add((ns_kg.InChIkey2D, RDFS.comment, rdflib.term.Literal("A 2D structure")))
+g.add((ns_kg.InChIkey2D, RDFS.comment, rdflib.term.Literal("The first 14 characters of an InChIKey")))
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]

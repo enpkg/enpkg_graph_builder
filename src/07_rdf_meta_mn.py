@@ -6,9 +6,8 @@ from rdflib.namespace import RDF, RDFS, XSD
 import networkx as nx
 import argparse
 import textwrap
-
-# These lines allows to make sure that we are placed at the repo directory level 
 from pathlib import Path
+from tqdm import tqdm
 
 p = Path(__file__).parents[1]
 os.chdir(p)
@@ -62,16 +61,21 @@ for file in os.listdir(os.path.join(sample_dir_path, '002_gnps',  job_id, 'resul
 g = Graph()
 nm = g.namespace_manager
 
-# Create jlw namespace
+# Create enpkg namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
+# Create enpkgdemo namespace
+demo_uri = "https://enpkg.commons-lab.org/demo/"
+ns_demo = rdflib.Namespace(demo_uri)
+prefix = "enpkgdemo"
+nm.bind(prefix, ns_demo)
+
 g.add((ns_kg.GNPSAnnotation, RDFS.subClassOf, ns_kg.Annotation))
-g.add((ns_kg.GNPSConsensusSpectrum, RDFS.subClassOf, ns_kg.MS2Spectrum))
-g.add((ns_kg.GNPSConsensusSpectrum, RDFS.comment, rdflib.term.Literal("A MS2 spectrum corresponding to the GNPS consensus spectrum of 1 or more feature(s)")))
-g.add((ns_kg.CSpair, RDFS.subClassOf, ns_kg.SpectralPair))
+g.add((ns_demo.GNPSConsensusSpectrum, RDFS.subClassOf, ns_kg.MS2Spectrum))
+g.add((ns_demo.GNPSConsensusSpectrum, RDFS.comment, rdflib.term.Literal("A MS2 spectrum corresponding to the GNPS consensus spectrum of 1 or more feature(s)")))
 
 # Load data
 nx_graph = nx.read_graphml(mn_graphml_path)
@@ -91,34 +95,25 @@ dic_library_id_to_ik2D = pd.Series(annotation_summary['InChIKey-Planar'].values,
 # Add consensus spectrum nodes
 # mask = cluster_id['#ClusterIdx'].duplicated(keep=False)
 # cluster_id_dup = cluster_id[mask]
-for _, row in cluster_id.iterrows():
+for _, row in tqdm(cluster_id.iterrows(), total=len(cluster_id)):
     feature = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[row['#Scan']])
     usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(row['#ClusterIdx'])
-    consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + usi)
+    consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + usi)
     link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
     
-    g.add((feature, ns_kg.has_consensus_spectrum, consensus))
+    g.add((feature, ns_demo.has_consensus_spectrum, consensus))
     cluster_link = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['GNPSLinkout_Cluster'].values[0]
-    g.add((consensus, ns_kg.gnps_spectrum_link, rdflib.term.Literal(cluster_link)))
+    g.add((consensus, ns_demo.gnps_spectrum_link, rdflib.term.Literal(cluster_link)))
     network_link = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['GNPSLinkout_Network'].values[0]
-    g.add((consensus, ns_kg.gnps_component_link, rdflib.term.Literal(network_link)))
+    g.add((consensus, ns_demo.gnps_component_link, rdflib.term.Literal(network_link)))
     g.add((consensus, ns_kg.has_usi, rdflib.term.Literal(usi)))
-    g.add((consensus, ns_kg.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
+    g.add((consensus, ns_demo.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
     
     component_index = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['componentindex'].values[0]
-    ci_node = rdflib.term.URIRef(kg_uri + 'metamn_' + job_id + '_componentindex_' + str(component_index))
+    ci_node = rdflib.term.URIRef(demo_uri + 'metamn_' + job_id + '_componentindex_' + str(component_index))
        
-    g.add((consensus, ns_kg.has_metamn_ci, ci_node))
-    g.add((consensus, RDF.type, ns_kg.GNPSConsensusSpectrum))
-    
-# # create triples for features in the same cluster index
-# for ci in list(cluster_id['#ClusterIdx'].unique()):    
-#     ms_cluster_linked = [k for k,v in dic_feature_id_to_cluster_id.items() if v == ci]
-#     if len(ms_cluster_linked) > 1:
-#         for pair in itertools.combinations(ms_cluster_linked,2):
-#             s = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[pair[0]])
-#             t = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[pair[1]])
-#             g.add((s, ns_kg.is_mscluster_similar_to, t))
+    g.add((consensus, ns_demo.has_metamn_ci, ci_node))
+    g.add((consensus, RDF.type, ns_demo.GNPSConsensusSpectrum))
 
 # create triples for features link in MN         
 for node in nx_graph.edges(data=True):
@@ -126,31 +121,28 @@ for node in nx_graph.edges(data=True):
         s_ci = int(node[0])
         t_ci = int(node[1])
         s_usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(s_ci)
-        s_consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + s_usi)
+        s_consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + s_usi)
         t_usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(t_ci)
-        t_consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + t_usi)
+        t_consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + t_usi)
         
         cosine = node[2]['cosine_score']
-        mass_diff = node[2]['mass_difference']
+        mass_diff = abs(float(node[2]['mass_difference']))
         
-        link_node = rdflib.term.URIRef(kg_uri + 'consensus_pair_' + s_usi + '_' + t_usi)
-        g.add((link_node, RDF.type, ns_kg.CSpair))
+        link_node = rdflib.term.URIRef(demo_uri + 'consensus_pair_' + s_usi + '_' + t_usi)
+        g.add((link_node, RDF.type, ns_kg.SpectralPair))
         g.add((link_node, ns_kg.has_member, s_consensus))
         g.add((link_node, ns_kg.has_member, t_consensus))
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))
         g.add((link_node, ns_kg.has_mass_difference, rdflib.term.Literal(mass_diff, datatype=XSD.float)))
-        
-        # for pair in itertools.product(s_features, t_features):
-        #     s = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[pair[0]])
-        #     t = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[pair[1]])
-        #     g.add((s, ns_kg.is_cosine_similar_to, t))
 
 # Add annotation to consensus nodes
-annotated_spectra = cluster_summary.dropna(subset='SpectrumID')
-for _, row in annotated_spectra.iterrows():
+annotated_spectra = cluster_summary.dropna(subset='LibraryID')
+for _, row in tqdm(annotated_spectra.iterrows(), total = len(annotated_spectra)):
     if row['SpectrumID'] in dic_library_id_to_ik2D.keys():
-        cluster_id = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + ionization_mode + '_ClusterID_' + str(row['cluster index']))
-        gnps_annotation_id = rdflib.term.URIRef(kg_uri + str(row['SpectrumID']))
+        usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(row['cluster index'])
+        cluster_id = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + usi)
+
+        gnps_annotation_id = rdflib.term.URIRef(demo_uri + str(row['SpectrumID']))
         usi = 'mzspec:GNPS:GNPS-LIBRARY:accession:' + str(row['SpectrumID'])
         link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
         InChIkey2D = rdflib.term.URIRef(kg_uri + dic_library_id_to_ik2D[row['SpectrumID']])
@@ -160,11 +152,8 @@ for _, row in annotated_spectra.iterrows():
         g.add((gnps_annotation_id, ns_kg.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
         g.add((gnps_annotation_id, RDF.type, ns_kg.GNPSAnnotation))
     
-    
-    
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
 pathout = os.path.normpath(os.path.join(pathout, f'meta_mn_{ionization_mode}.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
 print(f'Result are in : {pathout}') 
-

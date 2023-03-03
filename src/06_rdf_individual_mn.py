@@ -39,7 +39,6 @@ ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
-g.add((ns_kg.LFpair, RDFS.subClassOf, ns_kg.SpectralPair))
 g.add((ns_kg.has_member_1, RDFS.subPropertyOf, ns_kg.has_member))
 g.add((ns_kg.has_member_2, RDFS.subPropertyOf, ns_kg.has_member))
 
@@ -79,7 +78,7 @@ for directory in tqdm(samples_dir):
         g.add((t_feature_id, ns_kg.has_fbmn_ci, ci_node))
         
         link_node = rdflib.term.URIRef(kg_uri + 'lcms_feature_pair_' + usi_s + '_' + usi_t)
-        g.add((link_node, RDF.type, ns_kg.LFpair))
+        g.add((link_node, RDF.type, ns_kg.SpectralPair))
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))
         g.add((link_node, ns_kg.has_mass_difference, rdflib.term.Literal(mass_diff, datatype=XSD.float)))
 

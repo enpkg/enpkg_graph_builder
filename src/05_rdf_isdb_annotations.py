@@ -46,6 +46,8 @@ prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
 g.add((ns_kg.IsdbAnnotation, RDFS.subClassOf, ns_kg.Annotation))
+g.add((ns_kg.Annotation, RDFS.comment, rdflib.term.Literal("A 2D structure that correspond to the annotation of at least 1 feature")))
+g.add((ns_kg.InChIkey2D, RDFS.comment, rdflib.term.Literal("The first 14 characters of an InChIKey")))
 
 with open(os.path.normpath('data/adducts_formatter.json')) as json_file:
     adducts_dic = json.load(json_file)
