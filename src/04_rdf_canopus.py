@@ -41,8 +41,6 @@ ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
-g.add((ns_kg.SiriusCanopusAnnotation, RDFS.subClassOf, ns_kg.Annotation))
-
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
@@ -81,14 +79,18 @@ for directory in tqdm(samples_dir):
                 feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
                 canopus_annotation_id = rdflib.term.URIRef(kg_uri + "canopus_" + usi)
                 
+                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['pathway'].replace(" ", "_"))
+                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['superclass'].replace(" ", "_"))
+                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['class'].replace(" ", "_"))
+                
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_pathway, rdflib.term.Literal(row['pathway'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_pathway_prob, rdflib.term.Literal(row['pathwayProbability'], datatype=XSD.float)))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_superclass, rdflib.term.Literal(row['superclass'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_superclass_prob, rdflib.term.Literal(row['superclassProbability'], datatype=XSD.float)))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_class, rdflib.term.Literal(row['class'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_class_prob, rdflib.term.Literal(row['classProbability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway, npc_pathway))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway_prob, rdflib.term.Literal(row['pathwayProbability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_superclass, npc_superclass))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_superclass_prob, rdflib.term.Literal(row['superclassProbability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_class, npc_class))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_class_prob, rdflib.term.Literal(row['classProbability'], datatype=XSD.float)))
                 g.add((canopus_annotation_id, RDF.type, ns_kg.SiriusCanopusAnnotation))
         except FileNotFoundError:
             pass
@@ -110,14 +112,18 @@ for directory in tqdm(samples_dir):
                 feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
                 canopus_annotation_id = rdflib.term.URIRef(kg_uri + "canopus_" + usi)
                 
+                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#pathway'].replace(" ", "_"))
+                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#superclass'].replace(" ", "_"))
+                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#class'].replace(" ", "_"))
+                
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_pathway, rdflib.term.Literal(row['NPC#pathway'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_pathway_prob, rdflib.term.Literal(row['NPC#pathway Probability'], datatype=XSD.float)))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_superclass, rdflib.term.Literal(row['NPC#superclass'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_superclass_prob, rdflib.term.Literal(row['NPC#superclass Probability'], datatype=XSD.float)))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_class, rdflib.term.Literal(row['NPC#class'])))
-                g.add((canopus_annotation_id, ns_kg.has_canopus_np_class_prob, rdflib.term.Literal(row['NPC#class Probability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway, npc_pathway))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway_prob, rdflib.term.Literal(row['NPC#pathway Probability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_superclass, npc_superclass))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_superclass_prob, rdflib.term.Literal(row['NPC#superclass Probability'], datatype=XSD.float)))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_class, npc_class))
+                g.add((canopus_annotation_id, ns_kg.has_canopus_npc_class_prob, rdflib.term.Literal(row['NPC#class Probability'], datatype=XSD.float)))
                 g.add((canopus_annotation_id, RDF.type, ns_kg.SiriusCanopusAnnotation))
         except FileNotFoundError:
             pass

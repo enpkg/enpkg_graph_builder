@@ -73,10 +73,6 @@ ns_demo = rdflib.Namespace(demo_uri)
 prefix = "enpkgdemo"
 nm.bind(prefix, ns_demo)
 
-g.add((ns_kg.GNPSAnnotation, RDFS.subClassOf, ns_kg.Annotation))
-g.add((ns_demo.GNPSConsensusSpectrum, RDFS.subClassOf, ns_kg.MS2Spectrum))
-g.add((ns_demo.GNPSConsensusSpectrum, RDFS.comment, rdflib.term.Literal("A MS2 spectrum corresponding to the GNPS consensus spectrum of 1 or more feature(s)")))
-
 # Load data
 nx_graph = nx.read_graphml(mn_graphml_path)
 
@@ -129,7 +125,7 @@ for node in nx_graph.edges(data=True):
         mass_diff = abs(float(node[2]['mass_difference']))
         
         link_node = rdflib.term.URIRef(demo_uri + 'consensus_pair_' + s_usi + '_' + t_usi)
-        g.add((link_node, RDF.type, ns_kg.SpectralPair))
+        g.add((link_node, RDF.type, ns_kg.CSpair))
         g.add((link_node, ns_kg.has_member, s_consensus))
         g.add((link_node, ns_kg.has_member, t_consensus))
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))

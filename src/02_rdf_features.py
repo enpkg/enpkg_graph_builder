@@ -40,8 +40,6 @@ ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
-g.add((ns_kg.LCMSFeature, RDFS.subClassOf, ns_kg.MS2Spectrum))
-
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 for directory in tqdm(samples_dir):

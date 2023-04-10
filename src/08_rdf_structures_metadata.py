@@ -42,25 +42,30 @@ df_metadata = pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
 g = Graph()
 nm = g.namespace_manager
 
-# Create jlw namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
-g.add((ns_kg.InChIkey, RDFS.subClassOf, ns_kg.ChemicalEntity))
-g.add((ns_kg.WDChemical, RDFS.subClassOf, ns_kg.XRef))
-
 for _, row in df_metadata.iterrows():
     short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
+    
+    npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_pathway'].replace(" ", "_"))
+    npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_superclass'].replace(" ", "_"))
+    npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_class'].replace(" ", "_"))
+                
     g.add((short_ik, ns_kg.has_smiles, rdflib.term.Literal(row['smiles'])))
-    g.add((short_ik, ns_kg.has_np_pathway, rdflib.term.Literal(row['npc_pathway'])))
-    g.add((short_ik, ns_kg.has_np_superclass, rdflib.term.Literal(row['npc_superclass'])))
-    g.add((short_ik, ns_kg.has_np_class, rdflib.term.Literal(row['npc_class'])))
+    g.add((short_ik, ns_kg.has_npc_pathway, npc_pathway))
+    g.add((short_ik, ns_kg.has_npc_superclass, npc_superclass))
+    g.add((short_ik, ns_kg.has_npc_class, npc_class))
+    
     if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] != None):
         g.add((short_ik, ns_kg.is_InChIkey2D_of, rdflib.term.URIRef(kg_uri + row['inchikey'])))
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), RDF.type, ns_kg.InChIkey))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_pathway, npc_pathway))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_superclass, npc_superclass))
+        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_class, npc_class))
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
         g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_kg.WDChemical))
                 
