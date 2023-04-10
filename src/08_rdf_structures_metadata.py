@@ -50,22 +50,40 @@ nm.bind(prefix, ns_kg)
 for _, row in df_metadata.iterrows():
     short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
     
-    npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_pathway'].replace(" ", "_"))
-    npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_superclass'].replace(" ", "_"))
-    npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['npc_class'].replace(" ", "_"))
+    npc_pathway_list = row['npc_pathway'].replace(" ", "_").split('|')
+    npc_superclass_list = row['npc_superclass'].replace(" ", "_").split('|')
+    npc_class_list = row['npc_class'].replace(" ", "_").split('|')
+
+    npc_pathway_urilist = []
+    npc_superclass_urilist = []
+    npc_class_urilist = []
+
+    for list, uri_list in zip([npc_pathway_list, npc_superclass_list, npc_class_list],
+                              [npc_pathway_urilist, npc_superclass_urilist, npc_class_urilist]):
+        for item in list:
+            uri_list.append(rdflib.term.URIRef(kg_uri + "npc_" + item))
                 
     g.add((short_ik, ns_kg.has_smiles, rdflib.term.Literal(row['smiles'])))
-    g.add((short_ik, ns_kg.has_npc_pathway, npc_pathway))
-    g.add((short_ik, ns_kg.has_npc_superclass, npc_superclass))
-    g.add((short_ik, ns_kg.has_npc_class, npc_class))
+
+    for uri in npc_pathway_urilist:
+        g.add((short_ik, ns_kg.has_npc_pathway, uri))
+    for uri in npc_superclass_urilist:
+        g.add((short_ik, ns_kg.has_npc_superclass, uri))
+    for uri in npc_class_urilist:
+        g.add((short_ik, ns_kg.has_npc_class, uri))
     
     if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] != None):
         g.add((short_ik, ns_kg.is_InChIkey2D_of, rdflib.term.URIRef(kg_uri + row['inchikey'])))
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), RDF.type, ns_kg.InChIkey))
-        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_pathway, npc_pathway))
-        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_superclass, npc_superclass))
-        g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_class, npc_class))
+
+        for uri in npc_pathway_urilist:
+            g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_pathway, uri))
+        for uri in npc_superclass_urilist:
+            g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_superclass, uri))
+        for uri in npc_class_urilist:
+            g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_npc_class, uri))
+            
         g.add((rdflib.term.URIRef(kg_uri + row['inchikey']), ns_kg.has_smiles, rdflib.term.Literal(row['isomeric_smiles'])))
         g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_kg.WDChemical))
                 
