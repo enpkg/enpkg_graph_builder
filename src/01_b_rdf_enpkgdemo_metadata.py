@@ -40,9 +40,9 @@ prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
 # Create enpkgdemo namespace
-demo_uri = "https://enpkg.commons-lab.org/demo/"
+demo_uri = "https://enpkg.commons-lab.org/module/"
 ns_demo = rdflib.Namespace(demo_uri)
-prefix = "enpkgdemo"
+prefix = "enpkgmodule"
 nm.bind(prefix, ns_demo)
 
 target_chembl_url = 'https://www.ebi.ac.uk/chembl/target_report_card/'

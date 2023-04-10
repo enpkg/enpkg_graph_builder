@@ -45,7 +45,6 @@ samples_dir = [directory for directory in os.listdir(path)]
 # Define a lab process entity 
 g.add((ns_kg.LabProcess, RDF.type, RDF.Property))
 g.add((ns_kg.has_lab_process, RDF.type, ns_kg.LabProcess))
-g.add((ns_kg.WDTaxon, RDFS.subClassOf, ns_kg.XRef))
 
 for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
@@ -60,10 +59,10 @@ for directory in tqdm(samples_dir):
     
     if metadata.sample_type[0] == 'sample':
         material_id = rdflib.term.URIRef(enpkg_uri + metadata.sample_substance_name[0])
-        g.add((material_id, RDF.type, ns_kg.MaterialID))
+        g.add((material_id, RDF.type, ns_kg.RawMaterial))
         g.add((material_id, ns_kg.submitted_taxon, rdflib.term.Literal(metadata.organism_species[0])))
         g.add((material_id, ns_kg.has_lab_process, sample))
-        g.add((sample, RDF.type, ns_kg.LabProcess))
+        g.add((sample, RDF.type, ns_kg.LabExtract))
         g.add((sample, RDFS.label, rdflib.term.Literal(f"Sample {metadata.sample_id[0]}")))
         
         # Add GNPS Dashborad link for pos & neg: only if sample_filename_pos column exists and is not NaN and MassIVE id is present

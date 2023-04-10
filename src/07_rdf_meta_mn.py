@@ -67,12 +67,6 @@ ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
 nm.bind(prefix, ns_kg)
 
-# Create enpkgdemo namespace
-demo_uri = "https://enpkg.commons-lab.org/demo/"
-ns_demo = rdflib.Namespace(demo_uri)
-prefix = "enpkgdemo"
-nm.bind(prefix, ns_demo)
-
 # Load data
 nx_graph = nx.read_graphml(mn_graphml_path)
 
@@ -97,19 +91,19 @@ for _, row in tqdm(cluster_id.iterrows(), total=len(cluster_id)):
     consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + usi)
     link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
     
-    g.add((feature, ns_demo.has_consensus_spectrum, consensus))
+    g.add((feature, ns_kg.has_consensus_spectrum, consensus))
     cluster_link = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['GNPSLinkout_Cluster'].values[0]
-    g.add((consensus, ns_demo.gnps_spectrum_link, rdflib.term.Literal(cluster_link)))
+    g.add((consensus, ns_kg.gnps_spectrum_link, rdflib.term.Literal(cluster_link)))
     network_link = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['GNPSLinkout_Network'].values[0]
-    g.add((consensus, ns_demo.gnps_component_link, rdflib.term.Literal(network_link)))
+    g.add((consensus, ns_kg.gnps_component_link, rdflib.term.Literal(network_link)))
     g.add((consensus, ns_kg.has_usi, rdflib.term.Literal(usi)))
-    g.add((consensus, ns_demo.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
+    g.add((consensus, ns_kg.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
     
     component_index = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['componentindex'].values[0]
     ci_node = rdflib.term.URIRef(demo_uri + 'metamn_' + job_id + '_componentindex_' + str(component_index))
        
-    g.add((consensus, ns_demo.has_metamn_ci, ci_node))
-    g.add((consensus, RDF.type, ns_demo.GNPSConsensusSpectrum))
+    g.add((consensus, ns_kg.has_metamn_ci, ci_node))
+    g.add((consensus, RDF.type, ns_kg.GNPSConsensusSpectrum))
 
 # create triples for features link in MN         
 for node in nx_graph.edges(data=True):
