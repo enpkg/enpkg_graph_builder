@@ -88,7 +88,7 @@ dic_library_id_to_ik2D = pd.Series(annotation_summary['InChIKey-Planar'].values,
 for _, row in tqdm(cluster_id.iterrows(), total=len(cluster_id)):
     feature = rdflib.term.URIRef(kg_uri + dic_feature_id_to_original_feature_id[row['#Scan']])
     usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(row['#ClusterIdx'])
-    consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + usi)
+    consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + usi)
     link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
     
     g.add((feature, ns_kg.has_consensus_spectrum, consensus))
@@ -100,7 +100,7 @@ for _, row in tqdm(cluster_id.iterrows(), total=len(cluster_id)):
     g.add((consensus, ns_kg.gnps_dashboard_view, rdflib.term.Literal(link_spectrum)))
     
     component_index = cluster_summary[cluster_summary['cluster index']==row['#ClusterIdx']]['componentindex'].values[0]
-    ci_node = rdflib.term.URIRef(demo_uri + 'metamn_' + job_id + '_componentindex_' + str(component_index))
+    ci_node = rdflib.term.URIRef(kg_uri + 'metamn_' + job_id + '_componentindex_' + str(component_index))
        
     g.add((consensus, ns_kg.has_metamn_ci, ci_node))
     g.add((consensus, RDF.type, ns_kg.GNPSConsensusSpectrum))
@@ -111,14 +111,14 @@ for node in nx_graph.edges(data=True):
         s_ci = int(node[0])
         t_ci = int(node[1])
         s_usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(s_ci)
-        s_consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + s_usi)
+        s_consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + s_usi)
         t_usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(t_ci)
-        t_consensus = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + t_usi)
+        t_consensus = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + t_usi)
         
         cosine = node[2]['cosine_score']
         mass_diff = abs(float(node[2]['mass_difference']))
         
-        link_node = rdflib.term.URIRef(demo_uri + 'consensus_pair_' + s_usi + '_' + t_usi)
+        link_node = rdflib.term.URIRef(kg_uri + 'consensus_pair_' + s_usi + '_' + t_usi)
         g.add((link_node, RDF.type, ns_kg.CSpair))
         g.add((link_node, ns_kg.has_member, s_consensus))
         g.add((link_node, ns_kg.has_member, t_consensus))
@@ -130,9 +130,9 @@ annotated_spectra = cluster_summary.dropna(subset='LibraryID')
 for _, row in tqdm(annotated_spectra.iterrows(), total = len(annotated_spectra)):
     if row['SpectrumID'] in dic_library_id_to_ik2D.keys():
         usi = 'mzspec:MassIVE:TASK-' + job_id + '-spectra/specs_ms.mgf:scan:' + str(row['cluster index'])
-        cluster_id = rdflib.term.URIRef(demo_uri + 'GNPS_consensus_spectrum_' + usi)
+        cluster_id = rdflib.term.URIRef(kg_uri + 'GNPS_consensus_spectrum_' + usi)
 
-        gnps_annotation_id = rdflib.term.URIRef(demo_uri + str(row['SpectrumID']))
+        gnps_annotation_id = rdflib.term.URIRef(kg_uri + str(row['SpectrumID']))
         usi = 'mzspec:GNPS:GNPS-LIBRARY:accession:' + str(row['SpectrumID'])
         link_spectrum = 'https://metabolomics-usi.ucsd.edu/dashinterface/?usi1=' + usi
         InChIkey2D = rdflib.term.URIRef(kg_uri + dic_library_id_to_ik2D[row['SpectrumID']])
