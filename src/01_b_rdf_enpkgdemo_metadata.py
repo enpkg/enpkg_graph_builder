@@ -55,6 +55,13 @@ samples_dir = [directory for directory in os.listdir(path)]
 g.add((ns_demo.BioAssayResults, RDF.type, RDF.Property))
 g.add((ns_demo.SwissTPHBioAssay, RDFS.subClassOf, ns_demo.BioAssayResults))
 
+g.add((ns_demo.Ldono10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+g.add((ns_demo.Ldono2ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+g.add((ns_demo.Tbrucei10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+g.add((ns_demo.Tbrucei2ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+g.add((ns_demo.Tcruzi10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+g.add((ns_demo.L610ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
+
 for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
@@ -78,17 +85,19 @@ for directory in tqdm(samples_dir):
         g.add((material_id, ns_demo.has_subsystem, rdflib.term.URIRef(demo_uri + plant_parts['organism_subsystem'][0])))
                 
         
-        for assay_id, target, chembl_id in zip(
+        for assay_id, target, chembl_id, rdfclass in zip(
             ['bio_leish_donovani_10ugml_inhibition', 'bio_leish_donovani_2ugml_inhibition', 'bio_tryp_brucei_rhodesiense_10ugml_inhibition', \
             'bio_tryp_brucei_rhodesiense_2ugml_inhibition', 'bio_tryp_cruzi_10ugml_inhibition', 'bio_l6_cytotoxicity_10ugml_inhibition'], 
             ['Ldonovani_10ugml', 'Ldonovani_2ugml', 'Tbruceirhod_10ugml', 'Tbruceirhod_2ugml', 'Tcruzi_10ugml', 'L6_10ugml'],
-            ['CHEMBL367', 'CHEMBL367', 'CHEMBL612348', 'CHEMBL612348', 'CHEMBL368', None]):            
+            ['CHEMBL367', 'CHEMBL367', 'CHEMBL612348', 'CHEMBL612348', 'CHEMBL368', None],
+            [ns_demo.Ldono10ugml, ns_demo.Ldono2ugml, ns_demo.Tbrucei10ugml, ns_demo.Tbrucei2ugml, ns_demo.Tcruzi10ugml, ns_demo.L610ugml]):    
+                   
                 assay = rdflib.term.URIRef(demo_uri + metadata.sample_id[0] + "_" + target)
                 type = rdflib.term.URIRef(demo_uri + target)
                 g.add((sample, ns_demo.has_bioassay_results, assay))
                 g.add((assay, RDFS.label, rdflib.term.Literal(f"{target} assay of {metadata.sample_id[0]}")))
                 g.add((assay, ns_demo.inhibition_percentage, rdflib.term.Literal(metadata[assay_id][0], datatype=XSD.float)))
-                g.add((assay, RDF.type, ns_demo.SwissTPHBioAssay))
+                g.add((assay, RDF.type, rdfclass))
                 if chembl_id is not None:
                     target_id_uri = rdflib.term.URIRef(target_chembl_url + chembl_id)
                     g.add((assay, ns_demo.target_id, target_id_uri))
