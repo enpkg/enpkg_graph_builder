@@ -57,7 +57,6 @@ target_chembl_url = 'https://www.ebi.ac.uk/chembl/target_report_card/'
 assay_chembl_url = 'https://www.ebi.ac.uk/chembl/assay_report_card/'
 document_chembl_url = 'https://www.ebi.ac.uk/chembl/document_report_card/'
 
-g.add((ns_kg.WDChemical, RDFS.subClassOf, ns_kg.XRef))
 g.add((ns_demo.ChEMBLChemical, RDFS.subClassOf, ns_kg.XRef))
 g.add((ns_demo.ChEMBLTarget, RDFS.subClassOf, ns_kg.XRef))
 g.add((ns_demo.ChEMBLDocument, RDFS.subClassOf, ns_kg.XRef))
