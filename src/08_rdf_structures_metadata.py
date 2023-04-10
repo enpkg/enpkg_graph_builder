@@ -65,12 +65,25 @@ for _, row in df_metadata.iterrows():
                 
     g.add((short_ik, ns_kg.has_smiles, rdflib.term.Literal(row['smiles'])))
 
+    all_npc_pathway = []
+    all_npc_superclass = []
+    all_npc_class = []
+    
     for uri in npc_pathway_urilist:
         g.add((short_ik, ns_kg.has_npc_pathway, uri))
+        if uri not in all_npc_pathway:
+            g.add((uri, RDF.type, ns_kg.NPCPathway))
+            all_npc_pathway.append(uri)
     for uri in npc_superclass_urilist:
         g.add((short_ik, ns_kg.has_npc_superclass, uri))
+        if uri not in all_npc_superclass:
+            g.add((uri, RDF.type, ns_kg.NPCSuperclass))
+            all_npc_superclass.append(uri)
     for uri in npc_class_urilist:
         g.add((short_ik, ns_kg.has_npc_class, uri))
+        if uri not in all_npc_class:
+            g.add((uri, RDF.type, ns_kg.NPCClass))
+            all_npc_class.append(uri)
     
     if (row['wikidata_id'] != 'no_wikidata_match') & (row['wikidata_id'] != None):
         g.add((short_ik, ns_kg.is_InChIkey2D_of, rdflib.term.URIRef(kg_uri + row['inchikey'])))
