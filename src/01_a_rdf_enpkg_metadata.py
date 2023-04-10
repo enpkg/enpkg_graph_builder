@@ -42,10 +42,6 @@ nm.bind(prefix, ns_kg)
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 
-# Define a lab process entity 
-g.add((ns_kg.LabProcess, RDF.type, RDF.Property))
-g.add((ns_kg.has_lab_process, RDF.type, ns_kg.LabProcess))
-
 for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
