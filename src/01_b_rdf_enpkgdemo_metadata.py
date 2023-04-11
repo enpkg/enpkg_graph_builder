@@ -52,8 +52,8 @@ path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 
 # We define a lab process entity 
-g.add((ns_demo.BioAssayResults, RDF.type, RDF.Property))
-g.add((ns_demo.SwissTPHBioAssay, RDFS.subClassOf, ns_demo.BioAssayResults))
+g.add((ns_kg.BioAssayResults, RDF.type, RDF.Property))
+g.add((ns_demo.SwissTPHBioAssay, RDFS.subClassOf, ns_kg.BioAssayResults))
 
 g.add((ns_demo.Ldono10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
 g.add((ns_demo.Ldono2ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
