@@ -79,9 +79,9 @@ for directory in tqdm(samples_dir):
                 feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
                 canopus_annotation_id = rdflib.term.URIRef(kg_uri + "canopus_" + usi)
                 
-                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['pathway'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
-                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['superclass'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
-                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['class'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
+                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
+                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
+                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
                 
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
@@ -112,9 +112,9 @@ for directory in tqdm(samples_dir):
                 feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
                 canopus_annotation_id = rdflib.term.URIRef(kg_uri + "canopus_" + usi)
                 
-                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#pathway'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
-                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#superclass'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
-                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#class'].replace(" ", "_")).replace("(", "").replace(")", "").replace("-", "_")
+                npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
+                npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
+                npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_"))
                 
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
