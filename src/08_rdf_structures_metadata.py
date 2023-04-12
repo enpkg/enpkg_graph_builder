@@ -50,9 +50,9 @@ nm.bind(prefix, ns_kg)
 for _, row in df_metadata.iterrows():
     short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
     
-    npc_pathway_list = row['npc_pathway'].replace(" ", "_").split('|')
-    npc_superclass_list = row['npc_superclass'].replace(" ", "_").split('|')
-    npc_class_list = row['npc_class'].replace(" ", "_").split('|')
+    npc_pathway_list = row['npc_pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
+    npc_superclass_list = row['npc_superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
+    npc_class_list = row['npc_class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
 
     npc_pathway_urilist = []
     npc_superclass_urilist = []
