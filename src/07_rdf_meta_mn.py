@@ -16,11 +16,13 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        This script generate a RDF graph (.ttl format) from sa GNPS meta-MN (classical MN on aggregated unaligned spectra) 
+        This script generate a RDF graph (.ttl format) from a GNPS meta-MN (classical MN on aggregated unaligned spectra) 
          --------------------------------
             Arguments:
             - Path to the directory where samples folders are located
             - Ionization mode to process
+            - The GNPS molecular network job id
+            - The metadata file corresonding to the aggregated .mgf file uploaded on GNPS
         '''))
 
 parser.add_argument('-p', '--sample_dir_path', required=True,
@@ -28,9 +30,9 @@ parser.add_argument('-p', '--sample_dir_path', required=True,
 parser.add_argument('-ion', '--ionization_mode', required=True,
                     help='The ionization mode to process')
 parser.add_argument('-id', '--gnps_job_id', required=True,
-                    help='The GNPS job id')
+                    help='The GNPS molecular network job id')
 parser.add_argument('-m', '--metadata', required=True,
-                    help='The metadata file corresonding to the aggregated .mgf uploaded on GNPS')
+                    help='The metadata file corresonding to the aggregated .mgf file uploaded on GNPS')
 
 args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
