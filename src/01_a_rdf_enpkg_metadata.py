@@ -69,7 +69,7 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
-                g.add((sample, ns_kg.has_LCMS_pos, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), RDF.type, ns_kg.LCMSAnalysisPos))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_gnpslcms_link, rdflib.URIRef(gnps_dashboard_link)))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
@@ -83,7 +83,7 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
-                g.add((sample, ns_kg.has_LCMS_neg, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), RDF.type, ns_kg.LCMSAnalysisNeg))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_gnpslcms_link, rdflib.URIRef(gnps_dashboard_link)))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
@@ -106,9 +106,48 @@ for directory in tqdm(samples_dir):
     elif metadata.sample_type[0] == 'blank':
         g.add((sample, RDF.type, ns_kg.LabBlank))
         g.add((sample, RDFS.label, rdflib.term.Literal(f"Blank {metadata.sample_id[0]}")))
+
+        if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_pos'][0]):
+                sample_filename_pos = metadata['sample_filename_pos'][0]
+                massive_id = metadata['massive_id'][0]
+                link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), RDF.type, ns_kg.LCMSAnalysisPos))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_license, rdflib.URIRef("https://creativecommons.org/publicdomain/zero/1.0/")))
+        if set(['sample_filename_neg', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_neg'][0]):
+                sample_filename_neg = metadata['sample_filename_neg'][0]
+                massive_id = metadata['massive_id'][0]
+                link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), RDF.type, ns_kg.LCMSAnalysisNeg))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_license, rdflib.URIRef("https://creativecommons.org/publicdomain/zero/1.0/")))
+
+
     elif metadata.sample_type[0] == 'qc':
         g.add((sample, RDF.type, ns_kg.LabQc))
         g.add((sample, RDFS.label, rdflib.term.Literal(f"QC {metadata.sample_id[0]}")))
+        if set(['sample_filename_pos', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_pos'][0]):
+                sample_filename_pos = metadata['sample_filename_pos'][0]
+                massive_id = metadata['massive_id'][0]
+                link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), RDF.type, ns_kg.LCMSAnalysisPos))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_license, rdflib.URIRef("https://creativecommons.org/publicdomain/zero/1.0/")))
+        if set(['sample_filename_neg', 'massive_id']).issubset(metadata.columns):
+            if not pd.isna(metadata['sample_filename_neg'][0]):
+                sample_filename_neg = metadata['sample_filename_neg'][0]
+                massive_id = metadata['massive_id'][0]
+                link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
+                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), RDF.type, ns_kg.LCMSAnalysisNeg))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
+                g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_license, rdflib.URIRef("https://creativecommons.org/publicdomain/zero/1.0/")))
 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
