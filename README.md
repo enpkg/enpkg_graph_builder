@@ -40,7 +40,7 @@ python .\src\03_rdf_csi_annotations.py -p path/to/your/data/directory/ -ion {pos
 ### 1.4 Format Canopus annotations
 
 ```console
-python .\src\03_rdf_csi_annotations.py -p path/to/your/data/directory/ -ion {pos} or {neg}
+python .\src\03_rdf_canopus.py -p path/to/your/data/directory/ -ion {pos} or {neg}
 ```
 
 
