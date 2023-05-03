@@ -66,6 +66,7 @@ def load_and_filter_from_mgf(path) -> list:
 
 path = os.path.normpath(sample_dir_path)
 
+i=1
 samples_dir = [directory for directory in os.listdir(path)]
 for directory in tqdm(samples_dir):
     mgf_path = os.path.join(path, directory, ionization_mode, directory + '_features_ms2_' + ionization_mode + '.mgf')
@@ -102,9 +103,19 @@ for directory in tqdm(samples_dir):
                     loss = rdflib.term.URIRef(kg_uri + word)
                     g.add((document_id, ns_kg.has_spec2vec_loss, loss))
                     g.add((loss, RDF.type, ns_kg.Spec2VecLoss))
+    if len(g) > 40000000:
+        pathout = os.path.join(sample_dir_path, "004_rdf/")
+        os.makedirs(pathout, exist_ok=True)
+        pathout = os.path.normpath(os.path.join(pathout, f'features_spe2vec_{ionization_mode}_{i}.ttl'))
+        g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        print(f'Results are in : {pathout}')
+        g = Graph()
+        nm = g.namespace_manager
+        nm.bind(prefix, ns_kg)
+        i += 1
 
-pathout = os.path.join(sample_dir_path, "004_rdf/")
-os.makedirs(pathout, exist_ok=True)
-pathout = os.path.normpath(os.path.join(pathout, f'features_spe2vec_{ionization_mode}.ttl'))
-g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Results are in : {pathout}')
+# pathout = os.path.join(sample_dir_path, "004_rdf/")
+# os.makedirs(pathout, exist_ok=True)
+# pathout = os.path.normpath(os.path.join(pathout, f'features_spe2vec_{ionization_mode}.ttl'))
+# g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+# print(f'Results are in : {pathout}')
