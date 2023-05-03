@@ -16,6 +16,8 @@ dependencies:
   - requests
   - tqdm
   - sqlite
+  - matchms
+  - spec2vec
   - pip:
     - pyyaml
 prefix: /opt/anaconda3/envs/graph_builder
