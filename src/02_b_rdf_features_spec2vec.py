@@ -73,35 +73,37 @@ for directory in tqdm(samples_dir):
     try:
         metadata = pd.read_csv(metadata_path, sep='\t')
         os.path.isfile(mgf_path)
+    
+        if metadata.sample_type[0] == 'sample':
+            spectra_list = load_and_filter_from_mgf(mgf_path)
+            reference_documents = [SpectrumDocument(s, n_decimals=2) for s in spectra_list]
+            list_peaks_losses = list(doc.words for doc in reference_documents)
+            sample = rdflib.term.URIRef(kg_uri + metadata.sample_id[0])
+            for spectrum, document in zip(spectra_list, list_peaks_losses):
+                usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(spectrum.metadata['feature_id']))
+                feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
+                document_id = rdflib.term.URIRef(kg_uri + 'spec2vec_doc_' + usi)
+                
+                g.add((feature_id, ns_kg.has_spec2vec_doc, document_id))
+                g.add((document_id, RDF.type, ns_kg.Spec2VecDoc))
+                g.add((document_id, RDFS.label, rdflib.term.Literal(f"Spec2vec document {usi}")))
+                
+                for word in document:
+                    word = word.replace('@', '_')
+                    if word.startswith('peak'):
+                        peak = rdflib.term.URIRef(kg_uri + word)
+                        g.add((document_id, ns_kg.has_spec2vec_peak, peak))
+                        g.add((peak, RDF.type, ns_kg.Spec2VecPeak))
+                    elif word.startswith('loss'):
+                        loss = rdflib.term.URIRef(kg_uri + word)
+                        g.add((document_id, ns_kg.has_spec2vec_loss, loss))
+                        g.add((loss, RDF.type, ns_kg.Spec2VecLoss))
+                    
     except FileNotFoundError:
+        print(f'No .mgf found for directory {directory}. Skipping.')
         continue
     except NotADirectoryError:
         continue
-    
-    if metadata.sample_type[0] == 'sample':
-        spectra_list = load_and_filter_from_mgf(mgf_path)
-        reference_documents = [SpectrumDocument(s, n_decimals=2) for s in spectra_list]
-        list_peaks_losses = list(doc.words for doc in reference_documents)
-        sample = rdflib.term.URIRef(kg_uri + metadata.sample_id[0])
-        for spectrum, document in zip(spectra_list, list_peaks_losses):
-            usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(int(spectrum.metadata['feature_id']))
-            feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
-            document_id = rdflib.term.URIRef(kg_uri + 'spec2vec_doc_' + usi)
-            
-            g.add((feature_id, ns_kg.has_spec2vec_doc, document_id))
-            g.add((document_id, RDF.type, ns_kg.Spec2VecDoc))
-            g.add((document_id, RDFS.label, rdflib.term.Literal(f"Spec2vec document {usi}")))
-            
-            for word in document:
-                word = word.replace('@', '_')
-                if word.startswith('peak'):
-                    peak = rdflib.term.URIRef(kg_uri + word)
-                    g.add((document_id, ns_kg.has_spec2vec_peak, peak))
-                    g.add((peak, RDF.type, ns_kg.Spec2VecPeak))
-                elif word.startswith('loss'):
-                    loss = rdflib.term.URIRef(kg_uri + word)
-                    g.add((document_id, ns_kg.has_spec2vec_loss, loss))
-                    g.add((loss, RDF.type, ns_kg.Spec2VecLoss))
 
 pathout = os.path.join(sample_dir_path, "004_rdf/")
 os.makedirs(pathout, exist_ok=True)
