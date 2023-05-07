@@ -74,10 +74,6 @@ for directory in tqdm(samples_dir):
     try:
         metadata = pd.read_csv(metadata_path, sep='\t')
         os.path.isfile(mgf_path)
-    except FileNotFoundError:
-        continue
-    except NotADirectoryError:
-        continue
     
     if metadata.sample_type[0] == 'sample':
         spectra_list = load_and_filter_from_mgf(mgf_path)

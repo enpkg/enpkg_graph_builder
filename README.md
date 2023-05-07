@@ -40,7 +40,7 @@ python .\src\03_rdf_csi_annotations.py -p path/to/your/data/directory/ -ion {pos
 ### 1.4 Format Canopus annotations
 
 ```console
-python .\src\03_rdf_csi_annotations.py -p path/to/your/data/directory/ -ion {pos} or {neg}
+python .\src\04_rdf_canopus.py -p path/to/your/data/directory/ -ion {pos} or {neg}
 ```
 
 
@@ -61,7 +61,7 @@ python .\src\06_rdf_individual_mn.py -p path/to/your/data/directory/ -ion {pos} 
 ### 2.1. Format GNPS meta-MN
 
 ```console
-python .\src\07_rdf_meta_mn.py -p path/to/your/data/directory/  -ion {pos} or {neg} -id {gnps_job_id} -metadata {The metadata file corresonding to the aggregated .mgf uploaded on GNPS}
+python .\src\07_rdf_meta_mn.py -p path/to/your/data/directory/  -ion {pos} or {neg} -id {gnps_job_id} -m {The metadata file corresonding to the aggregated .mgf uploaded on GNPS}
 ```
 
 ### 2.2. Format structures' metadata

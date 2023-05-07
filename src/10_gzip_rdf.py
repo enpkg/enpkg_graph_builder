@@ -39,4 +39,8 @@ for file in os.listdir(path):
                 print(f'{f_in} done')
             else:
                 print(f'{file_out} already exists')
+    elif size_mo < size:
+        print(f'Not an heavy file ! You are OK to go.')
+        continue
+        
     
