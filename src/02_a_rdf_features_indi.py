@@ -34,23 +34,13 @@ ionization_mode = args.ionization_mode
 g = Graph()
 nm = g.namespace_manager
 
-# Create jlw namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"
-nm.bind(prefix, ns_kg)
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 for directory in tqdm(samples_dir):
-    g = Graph()
-    nm = g.namespace_manager
-
-    # Create jlw namespace
-    kg_uri = "https://enpkg.commons-lab.org/kg/"
-    ns_kg = rdflib.Namespace(kg_uri)
-    prefix = "enpkg"
-    nm.bind(prefix, ns_kg)
 
     quant_path = os.path.join(path, directory, ionization_mode, directory + '_features_quant_' + ionization_mode + '.csv')
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
@@ -63,6 +53,10 @@ for directory in tqdm(samples_dir):
         continue
     
     if metadata.sample_type[0] == 'sample':
+        g = Graph()
+        nm = g.namespace_manager
+        nm.bind(prefix, ns_kg)
+
         sample = rdflib.term.URIRef(kg_uri + metadata.sample_id[0])
         area_col = [col for col in quant_table.columns if col.endswith(' Peak area')][0]
         max_area = quant_table[area_col].max()
@@ -100,8 +94,8 @@ for directory in tqdm(samples_dir):
             link_png = 'https://metabolomics-usi.ucsd.edu/png/?usi1=' + usi
             g.add((feature_id, FOAF.depiction, rdflib.URIRef(link_png))) 
             
-    pathout = os.path.join(sample_dir_path, directory, "rdf/")
-    os.makedirs(pathout, exist_ok=True)
-    pathout = os.path.normpath(os.path.join(pathout, f'features_{ionization_mode}.ttl'))
-    g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-    print(f'Results are in : {pathout}')
+        pathout = os.path.join(sample_dir_path, directory, "rdf/")
+        os.makedirs(pathout, exist_ok=True)
+        pathout = os.path.normpath(os.path.join(pathout, f'features_{ionization_mode}.ttl'))
+        g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        print(f'Results are in : {pathout}')
