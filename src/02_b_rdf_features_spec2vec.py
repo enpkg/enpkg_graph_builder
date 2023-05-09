@@ -114,3 +114,9 @@ for directory in tqdm(samples_dir):
             nm = g.namespace_manager
             nm.bind(prefix, ns_kg)
             i += 1
+        else:
+            pathout = os.path.join(sample_dir_path, "004_rdf/")
+            os.makedirs(pathout, exist_ok=True)
+            pathout = os.path.normpath(os.path.join(pathout, f'features_spec2vec_{ionization_mode}_{i}.ttl'))
+            g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+            print(f'Results are in : {pathout}')
