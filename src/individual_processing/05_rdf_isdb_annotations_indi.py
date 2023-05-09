@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 from pathlib import Path
-p = Path(__file__).parents[1]
+p = Path(__file__).parents[2]
 os.chdir(p)
 
 """ Argument parser """
@@ -36,14 +36,7 @@ args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 ionization_mode = args.ionization_mode
 
-g = Graph()
-nm = g.namespace_manager
 
-# Create jlw namespace
-kg_uri = "https://enpkg.commons-lab.org/kg/"
-ns_kg = rdflib.Namespace(kg_uri)
-prefix = "enpkg"
-nm.bind(prefix, ns_kg)
 
 with open(os.path.normpath('data/adducts_formatter.json')) as json_file:
     adducts_dic = json.load(json_file)
@@ -52,6 +45,16 @@ path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
 for directory in tqdm(samples_dir):
+    
+    g = Graph()
+    nm = g.namespace_manager
+
+    # Create jlw namespace
+    kg_uri = "https://enpkg.commons-lab.org/kg/"
+    ns_kg = rdflib.Namespace(kg_uri)
+    prefix = "enpkg"
+    nm.bind(prefix, ns_kg)
+
     isdb_path = os.path.join(path, directory, ionization_mode, 'isdb', directory + '_isdb_reweighted_flat_' + ionization_mode + '.tsv')
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
@@ -86,8 +89,8 @@ for directory in tqdm(samples_dir):
         g.add((InChIkey2D, RDF.type, ns_kg.InChIkey2D))
         g.add((isdb_annotation_id, RDF.type, ns_kg.IsdbAnnotation))
                  
-pathout = os.path.join(sample_dir_path, "004_rdf/")
-os.makedirs(pathout, exist_ok=True)
-pathout = os.path.normpath(os.path.join(pathout, f'isdb_{ionization_mode}.ttl'))
-g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-print(f'Results are in : {pathout}')     
+    pathout = os.path.join(sample_dir_path, directory, "rdf/")
+    os.makedirs(pathout, exist_ok=True)
+    pathout = os.path.normpath(os.path.join(pathout, f'isdb_{ionization_mode}.ttl'))
+    g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+    print(f'Results are in : {pathout}')     

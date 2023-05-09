@@ -14,7 +14,7 @@ from matchms.filtering import reduce_to_number_of_peaks
 from pathlib import Path
 from spec2vec import SpectrumDocument
 
-p = Path(__file__).parents[1]
+p = Path(__file__).parents[2]
 os.chdir(p)
 
 """ Argument parser """

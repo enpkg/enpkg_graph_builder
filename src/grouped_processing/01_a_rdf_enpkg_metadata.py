@@ -8,7 +8,7 @@ from rdflib import Graph, Namespace
 from rdflib.namespace import RDF, RDFS, FOAF
 from tqdm import tqdm
 
-p = Path(__file__).parents[1]
+p = Path(__file__).parents[2]
 os.chdir(p)
 
 """ Argument parser """
@@ -27,20 +27,22 @@ parser.add_argument('-p', '--sample_dir_path', required=True,
 args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 
+g = Graph()
+nm = g.namespace_manager
+
 WD = Namespace('http://www.wikidata.org/entity/')
+nm.bind('wd', WD)
+
+# Create enpkg namespace
 enpkg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(enpkg_uri)
 prefix = "enpkg"
+nm.bind(prefix, ns_kg)
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 
-for directory in tqdm(samples_dir):
-    g = Graph()
-    nm = g.namespace_manager
-    nm.bind('wd', WD)
-    nm.bind(prefix, ns_kg)
-
+for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
         metadata = pd.read_csv(metadata_path, sep='\t')
@@ -147,8 +149,8 @@ for directory in tqdm(samples_dir):
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_license, rdflib.URIRef("https://creativecommons.org/publicdomain/zero/1.0/")))
 
-    pathout = os.path.join(sample_dir_path, directory, "rdf/")
-    os.makedirs(pathout, exist_ok=True)
-    pathout = os.path.normpath(os.path.join(pathout, 'metadata_enpkg.ttl'))
-    g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-    print(f'Results are in : {pathout}')
+pathout = os.path.join(sample_dir_path, "004_rdf/")
+os.makedirs(pathout, exist_ok=True)
+pathout = os.path.normpath(os.path.join(pathout, 'metadata_enpkg.ttl'))
+g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+print(f'Results are in : {pathout}')

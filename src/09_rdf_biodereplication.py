@@ -9,7 +9,7 @@ import argparse
 import textwrap
 from tqdm import tqdm
 
-p = Path(__file__).parents[1]
+p = Path(__file__).parents[2]
 os.chdir(p)
 
 

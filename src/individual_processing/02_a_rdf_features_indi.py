@@ -8,7 +8,7 @@ from rdflib.namespace import RDF, RDFS, XSD, FOAF
 from tqdm import tqdm
 
 from pathlib import Path
-p = Path(__file__).parents[1]
+p = Path(__file__).parents[2]
 os.chdir(p)
 
 """ Argument parser """
