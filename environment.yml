@@ -11,6 +11,8 @@ dependencies:
   - ipython
   - networkx
   - ipykernel
+  - matchms
+  - spec2vec
   - rdflib
   - pandas
   - requests
