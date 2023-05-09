@@ -129,16 +129,20 @@ enpkg:InChIkey a rdfs:Class ;
 	rdfs:subClassOf enpkg:ChemicalEntity       ;
 	rdfs:label "InChIKey" ;
 	rdfs:comment "A chemical structure represented by its InChIKey" .
+
+enpkg:ChemicalTaxonomy a rdfs:Class ;
+	rdfs:label "chemical taxonomy" ;
+	rdfs:label "A chemical taxonmy (chemical class)"  .
 enpkg:NPCPathway a rdfs:Class ;
-	rdfs:subClassOf enpkg:ChemicalEntity       ;
+	rdfs:subClassOf enpkg:ChemicalTaxonomy       ;
 	rdfs:label "NPCPathway" ;
 	rdfs:comment "A NPClassifier (NPC) chemical pathway" .
 enpkg:NPCSuperclass a rdfs:Class ;
-	rdfs:subClassOf enpkg:ChemicalEntity       ;
+	rdfs:subClassOf enpkg:ChemicalTaxonomy       ;
 	rdfs:label "NPCSuperclass" ;
 	rdfs:comment "A NPClassifier (NPC) chemical superclass" .
 enpkg:NPCClass a rdfs:Class ;
-	rdfs:subClassOf enpkg:ChemicalEntity       ;
+	rdfs:subClassOf enpkg:ChemicalTaxonomy       ;
 	rdfs:label "NPCClass" ;
 	rdfs:comment "A NPClassifier (NPC) chemical class" .
 

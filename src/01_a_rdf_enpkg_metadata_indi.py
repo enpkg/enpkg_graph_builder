@@ -27,7 +27,10 @@ parser.add_argument('-p', '--sample_dir_path', required=True,
 args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 
-
+WD = Namespace('http://www.wikidata.org/entity/')
+enpkg_uri = "https://enpkg.commons-lab.org/kg/"
+ns_kg = rdflib.Namespace(enpkg_uri)
+prefix = "enpkg"
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
@@ -35,14 +38,7 @@ samples_dir = [directory for directory in os.listdir(path)]
 for directory in tqdm(samples_dir):
     g = Graph()
     nm = g.namespace_manager
-
-    WD = Namespace('http://www.wikidata.org/entity/')
     nm.bind('wd', WD)
-
-    # Create enpkg namespace
-    enpkg_uri = "https://enpkg.commons-lab.org/kg/"
-    ns_kg = rdflib.Namespace(enpkg_uri)
-    prefix = "enpkg"
     nm.bind(prefix, ns_kg)
 
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')

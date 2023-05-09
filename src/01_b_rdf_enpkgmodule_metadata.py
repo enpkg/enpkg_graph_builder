@@ -51,17 +51,6 @@ g.add((ns_demo.ChEMBLTarget, RDFS.subClassOf, ns_kg.XRef))
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
 
-# We define a lab process entity 
-g.add((ns_kg.BioAssayResults, RDF.type, RDF.Property))
-g.add((ns_demo.SwissTPHBioAssay, RDFS.subClassOf, ns_kg.BioAssayResults))
-
-g.add((ns_demo.Ldono10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-g.add((ns_demo.Ldono2ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-g.add((ns_demo.Tbrucei10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-g.add((ns_demo.Tbrucei2ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-g.add((ns_demo.Tcruzi10ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-g.add((ns_demo.L610ugml, RDFS.subClassOf, ns_demo.SwissTPHBioAssay))
-
 for directory in tqdm(samples_dir):    
     metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
     try:
