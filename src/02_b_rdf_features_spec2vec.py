@@ -103,7 +103,7 @@ for directory in tqdm(samples_dir):
                     loss = rdflib.term.URIRef(kg_uri + word)
                     g.add((document_id, ns_kg.has_spec2vec_loss, loss))
                     g.add((loss, RDF.type, ns_kg.Spec2VecLoss))
-    if len(g) > 40000000:
+    if len(g) > 8000000:
         pathout = os.path.join(sample_dir_path, "004_rdf/")
         os.makedirs(pathout, exist_ok=True)
         pathout = os.path.normpath(os.path.join(pathout, f'features_spe2vec_{ionization_mode}_{i}.ttl'))
