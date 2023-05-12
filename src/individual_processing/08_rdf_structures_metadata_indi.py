@@ -34,11 +34,6 @@ args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 metadata_path = os.path.normpath(args.metadata_path)
 
-"""
-sample_dir_path = '/Users/arnaudgaudry/Desktop/VGF_data_organized'
-metadata_path = '/Users/arnaudgaudry/Github/enpkg_meta_analysis/output_data/sql_db/structures_metadata.db'
-"""
-
 # Connect to structures DB
 dat = sqlite3.connect(metadata_path)
 query = dat.execute("SELECT * From structures_metadata")
