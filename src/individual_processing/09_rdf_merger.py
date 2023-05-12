@@ -73,6 +73,6 @@ for directory in tqdm(samples_dir):
 
     pathout = os.path.join(sample_dir_path, directory, "rdf/")
     os.makedirs(pathout, exist_ok=True)
-    pathout = os.path.normpath(os.path.join(pathout, 'merged_graph.ttl'))
+    pathout = os.path.normpath(os.path.join(pathout, f'{directory}_merged_graph.ttl'))
     merged_graph.serialize(destination=pathout, format="ttl", encoding="utf-8")
     print(f'Results are in : {pathout}') 
