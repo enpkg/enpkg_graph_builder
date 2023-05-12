@@ -32,11 +32,7 @@ args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 ionization_mode = args.ionization_mode
 
-
-
 path = os.path.normpath(sample_dir_path)
-# pathout = os.path.join(sample_dir_path, "004_rdf/")
-# os.makedirs(pathout, exist_ok=True)
 
 samples_dir = [directory for directory in os.listdir(path)]
 df_list = []
@@ -91,6 +87,6 @@ for directory in tqdm(samples_dir):
 
     pathout = os.path.join(sample_dir_path, directory, "rdf/")
     os.makedirs(pathout, exist_ok=True)
-    pathout = os.path.normpath(os.path.join(pathout, f'indivual_mn_{ionization_mode}.ttl'))
+    pathout = os.path.normpath(os.path.join(pathout, f'individual_mn_{ionization_mode}.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
     print(f'Results are in : {pathout}')  
