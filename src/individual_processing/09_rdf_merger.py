@@ -43,7 +43,7 @@ df_list = []
 
 files = ["rdf/canopus_pos.ttl", "rdf/canopus_neg.ttl", 
         "rdf/features_pos.ttl", "rdf/features_neg.ttl", 
-        "rdf/features_spe2vec_pos.ttl", "rdf/features_spe2vec_neg.ttl",
+        "rdf/features_spec2vec_pos.ttl", "rdf/features_spec2vec_neg.ttl",
         "rdf/indivual_mn_pos.ttl", "rdf/indivual_mn_neg.ttl",
         "rdf/isdb_pos.ttl", "rdf/isdb_neg.ttl",
         "rdf/sirius_pos.ttl", "rdf/sirius_neg.ttl",
