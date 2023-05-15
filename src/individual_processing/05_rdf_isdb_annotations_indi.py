@@ -49,7 +49,6 @@ for directory in tqdm(samples_dir):
     g = Graph()
     nm = g.namespace_manager
 
-    # Create jlw namespace
     kg_uri = "https://enpkg.commons-lab.org/kg/"
     ns_kg = rdflib.Namespace(kg_uri)
     prefix = "enpkg"
@@ -70,9 +69,7 @@ for directory in tqdm(samples_dir):
     for _, row in isdb_annotations.iterrows():
         feature_count.append(row['feature_id'])
         count = feature_count.count(row['feature_id'])
-        #feature_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_feature_" + str(row['feature_id']) + '_' + ionization_mode)
         InChIkey2D = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
-        #isdb_annotation_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_isdb_annotation_" + str(row['feature_id']) + '_' + ionization_mode + '_' + str(count))
         
         usi = 'mzspec:' + metadata['massive_id'][0] + ':' + metadata.sample_id[0] + '_features_ms2_'+ ionization_mode+ '.mgf:scan:' + str(row['feature_id']) 
         feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)        

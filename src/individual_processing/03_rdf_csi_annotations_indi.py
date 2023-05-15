@@ -38,7 +38,6 @@ nm = g.namespace_manager
 with open(os.path.normpath('data/adducts_formatter.json')) as json_file:
     adducts_dic = json.load(json_file)
 
-# Create jlw namespace
 kg_uri = "https://enpkg.commons-lab.org/kg/"
 ns_kg = rdflib.Namespace(kg_uri)
 prefix = "enpkg"

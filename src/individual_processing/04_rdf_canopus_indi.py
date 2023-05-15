@@ -42,7 +42,6 @@ df_list = []
 for directory in tqdm(samples_dir):
     g = Graph()
     nm = g.namespace_manager
-    # Create jlw namespace
     kg_uri = "https://enpkg.commons-lab.org/kg/"
     ns_kg = rdflib.Namespace(kg_uri)
     prefix = "enpkg"
