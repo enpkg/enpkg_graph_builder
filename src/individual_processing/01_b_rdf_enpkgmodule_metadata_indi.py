@@ -95,6 +95,7 @@ for directory in tqdm(samples_dir):
     pathout = os.path.join(sample_dir_path, directory, "rdf/")
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, 'metadata_module_enpkg.ttl'))
-    g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-    print(f'Results are in : {pathout}')          
+    if len(g)>0:
+        g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        print(f'Results are in : {pathout}')          
         
