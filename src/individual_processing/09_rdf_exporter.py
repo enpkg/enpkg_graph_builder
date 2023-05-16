@@ -4,6 +4,7 @@ import shutil
 import argparse
 import textwrap
 from tqdm import tqdm
+import gzip
 
 # These lines allows to make sure that we are placed at the repo directory level 
 p = Path(__file__).parents[2]
@@ -16,17 +17,22 @@ parser = argparse.ArgumentParser(
         This script generate a unique RDF graph by sample (.ttl format) from multiples sample specific .rdf files.
          --------------------------------
             Arguments:
-            - Path to the directory where samples folders are located
+            - (--source/-s) Path to the directory where samples folders are located.
+            - (--target/-t) Path to the directory where individual ttl files are copied.
+            - (--compress/-c) Compress files to .gz while when copying.
         '''))
 
 parser.add_argument('-s', '--source_path', required=True,
                     help='The path to the directory where samples folders to process are located')
 parser.add_argument('-t', '--target_path', required=True,
                     help='The path to the directory into wich the .ttl files are copied')
+parser.add_argument('-c', '--compress', action='store_true',
+                    help='Compress files to .gz')
 
 args = parser.parse_args()
 source_path = os.path.normpath(args.source_path)
 target_path = os.path.normpath(args.target_path)
+compress = args.compress
 
 os.makedirs(target_path, exist_ok=True)
 
@@ -36,4 +42,11 @@ for directory in tqdm(samples_dir):
     src = os.path.join(source_path, directory, "rdf", f"{directory}_merged_graph.ttl")
     if os.path.isfile(src):
         dst = os.path.join(target_path, f"{directory}_merged_graph.ttl")
-        shutil.copyfile(src, dst)
+        if compress:
+            with open(src, 'rb') as f_in:
+                file_out = os.path.join(dst) + '.gz'
+                if not os.path.isfile(file_out):
+                    with gzip.open(file_out, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+        else:
+            shutil.copyfile(src, dst)
