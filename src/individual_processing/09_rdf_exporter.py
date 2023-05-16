@@ -14,7 +14,7 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        This script generate a unique RDF graph by sample (.ttl format) from multiples sample specific .rdf files.
+        This script copy individual sample-specific RDF graphs(.ttl format) from the ENPKG file-architecture into a single specified folder.
          --------------------------------
             Arguments:
             - (--source/-s) Path to the directory where samples folders are located.
