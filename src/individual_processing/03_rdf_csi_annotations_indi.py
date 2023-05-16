@@ -16,7 +16,7 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        This script generate a RDF graph (.ttl format) from samples' individual Sirius annotations
+        This script generate a RDF graph (.ttl format) from samples' individual SIRIUS annotations
          --------------------------------
             Arguments:
             - Path to the directory where samples folders are located

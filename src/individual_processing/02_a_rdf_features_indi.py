@@ -15,7 +15,7 @@ os.chdir(p)
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''\
-        This script generate a RDF graph (.ttl format) from samples' individual features files 
+        This script generate a RDF graph (.ttl format) from samples' individual feature-list files 
          --------------------------------
             Arguments:
             - Path to the directory where samples folders are located
