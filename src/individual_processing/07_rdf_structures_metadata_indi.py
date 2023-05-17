@@ -34,6 +34,10 @@ args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 metadata_path = os.path.normpath(args.metadata_path)
 
+greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω'
+latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWw'
+greek2latin = str.maketrans(greek_alphabet, latin_alphabet)
+
 # Connect to structures DB
 dat = sqlite3.connect(metadata_path)
 query = dat.execute("SELECT * From structures_metadata")
@@ -84,9 +88,9 @@ for directory in tqdm(samples_dir):
     nm.bind(prefix, ns_kg)   
     for _, row in sample_specific_db.iterrows():
         short_ik = rdflib.term.URIRef(kg_uri + row['short_inchikey'])
-        npc_pathway_list = row['npc_pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
-        npc_superclass_list = row['npc_superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
-        npc_class_list = row['npc_class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").split('|')
+        npc_pathway_list = row['npc_pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin).split('|')
+        npc_superclass_list = row['npc_superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin).split('|')
+        npc_class_list = row['npc_class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin).split('|')
 
         npc_pathway_urilist = []
         npc_superclass_urilist = []
