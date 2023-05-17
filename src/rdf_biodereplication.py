@@ -20,20 +20,20 @@ parser = argparse.ArgumentParser(
         This script generate a RDF graph (.ttl format) from a list of ChEMBL compounds
          --------------------------------
             Arguments:
-            - Path to the directory where samples folders are located
             - Path to the SQL metadata DB with compounds' metadata
             - Path to the samples ChEMBL metadata FOLDER (will integrate all ChEMBL files)
+            - Path to export the resulting .ttl file
         '''))
 
-parser.add_argument('-p', '--sample_dir_path', required=True,
-                    help='The path to the directory where samples folders to process are located')
 parser.add_argument('-chemdb', '--chem_metadata_path', required=True,
                     help='The path to the samples metadata SQL DB')
 parser.add_argument('-biodb', '--bio_metadata_path', required=True,
                     help='The path to the samples ChEMBL metadata FOLDER (will integrate all ChEMBL files)')
+parser.add_argument('-o', '--pathout', required=True,
+                    help='The path to export the resulting .ttl file')
 
 args = parser.parse_args()
-sample_dir_path = os.path.normpath(args.sample_dir_path)
+pathout = os.path.normpath(args.pathout)
 chem_metadata_path = os.path.normpath(args.chem_metadata_path)
 path_bio = os.path.normpath(args.bio_metadata_path)
 
@@ -111,8 +111,5 @@ for _, row in tqdm(df_bio_metadata.iterrows(), total = len(df_bio_metadata)):
             g.add((uri_ik, ns_kg.has_wd_id, rdflib.term.URIRef(row['wikidata_id'])))
             g.add((rdflib.term.URIRef(row['wikidata_id']), RDF.type, ns_kg.WDChemical))
 
-pathout = os.path.join(sample_dir_path, "004_rdf/")
-os.makedirs(pathout, exist_ok=True)
-pathout = os.path.normpath(os.path.join(pathout, 'chembl_metadata.ttl'))
 g.serialize(destination=pathout, format="ttl", encoding="utf-8")
 print(f'Result are in : {pathout}') 
