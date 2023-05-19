@@ -32,11 +32,9 @@ args = parser.parse_args()
 sample_dir_path = os.path.normpath(args.sample_dir_path)
 ionization_mode = args.ionization_mode
 
-
 greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩωÎ²Iµ'
 latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWwI2Iu'
 greek2latin = str.maketrans(greek_alphabet, latin_alphabet)
-
 
 path = os.path.normpath(sample_dir_path)
 samples_dir = [directory for directory in os.listdir(path)]
@@ -87,6 +85,10 @@ for directory in tqdm(samples_dir):
                 npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 
+                g.add((npc_pathway, RDF.type, ns_kg.NPCPathway))
+                g.add((npc_superclass, RDF.type, ns_kg.NPCSuperclass))
+                g.add((npc_class, RDF.type, ns_kg.NPCClass))
+                
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
                 g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway, npc_pathway))
@@ -119,7 +121,11 @@ for directory in tqdm(samples_dir):
                 npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
-                    
+                
+                g.add((npc_pathway, RDF.type, ns_kg.NPCPathway))
+                g.add((npc_superclass, RDF.type, ns_kg.NPCSuperclass))
+                g.add((npc_class, RDF.type, ns_kg.NPCClass))
+                
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
                 g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway, npc_pathway))
