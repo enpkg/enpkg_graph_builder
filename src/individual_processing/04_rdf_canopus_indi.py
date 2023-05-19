@@ -33,8 +33,8 @@ sample_dir_path = os.path.normpath(args.sample_dir_path)
 ionization_mode = args.ionization_mode
 
 
-greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω'
-latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWw'
+greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩωÎ²'
+latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWwI2'
 greek2latin = str.maketrans(greek_alphabet, latin_alphabet)
 
 
@@ -66,7 +66,7 @@ for directory in tqdm(samples_dir):
 
     
     with open (sirius_param_path) as file:    
-            params_list = yaml.load(file, Loader=yaml.FullLoader)
+        params_list = yaml.load(file, Loader=yaml.FullLoader)
     sirius_version = params_list['options'][0]['sirius_version']
     
     if sirius_version == 4:
