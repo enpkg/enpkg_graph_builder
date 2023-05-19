@@ -64,7 +64,7 @@ for directory in tqdm(samples_dir):
         nm.bind("wd", WD)
 
         for file_path in exist_files:
-            with open(file_path, "r") as f:
+            with open(file_path, "r", encoding="utf8") as f:
                 file_content = f.read()
                 merged_graph.parse(data=file_content, format="ttl")
 
