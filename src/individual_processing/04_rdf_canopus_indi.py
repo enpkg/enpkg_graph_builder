@@ -71,7 +71,7 @@ for directory in tqdm(samples_dir):
         # Canopus NPC results integration for sirius 4
         try:
             canopus_npc_path = os.path.join(path, directory, ionization_mode, directory + '_WORKSPACE_SIRIUS', 'npc_summary.csv')
-            canopus_annotations = pd.read_csv(canopus_npc_path)
+            canopus_annotations = pd.read_csv(canopus_npc_path, encoding="utf-8")
             canopus_annotations.fillna('Unknown', inplace=True)
             for _, row in canopus_annotations.iterrows():        
                 # feature_id = rdflib.term.URIRef(kg_uri + metadata.sample_id[0] + "_feature_" + str(row['name']) + '_' + ionization_mode)
@@ -107,7 +107,7 @@ for directory in tqdm(samples_dir):
         # Canopus NPC results integration for sirius 5
         try:
             canopus_npc_path = os.path.join(path, directory, ionization_mode, directory + '_WORKSPACE_SIRIUS', 'canopus_compound_summary.tsv')
-            canopus_annotations = pd.read_csv(canopus_npc_path, sep='\t')
+            canopus_annotations = pd.read_csv(canopus_npc_path, sep='\t', encoding="utf-8")
             canopus_annotations.fillna('Unknown', inplace=True)
             for _, row in canopus_annotations.iterrows():
                 
