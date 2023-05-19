@@ -33,8 +33,8 @@ sample_dir_path = os.path.normpath(args.sample_dir_path)
 ionization_mode = args.ionization_mode
 
 
-greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩωÎ²'
-latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWwI2'
+greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩωÎ²Iµ'
+latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWwI2Iu'
 greek2latin = str.maketrans(greek_alphabet, latin_alphabet)
 
 
@@ -119,7 +119,7 @@ for directory in tqdm(samples_dir):
                 npc_pathway = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#pathway'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 npc_superclass = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#superclass'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
                 npc_class = rdflib.term.URIRef(kg_uri + "npc_" + row['NPC#class'].replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_").translate(greek2latin))
-                
+                    
                 g.add((feature_id, ns_kg.has_canopus_annotation, canopus_annotation_id))
                 g.add((canopus_annotation_id, RDFS.label, rdflib.term.Literal(f"canopus annotation of {usi}")))
                 g.add((canopus_annotation_id, ns_kg.has_canopus_npc_pathway, npc_pathway))
