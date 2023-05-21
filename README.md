@@ -112,3 +112,8 @@ python .\src\individual_processing\09_rdf_exporter.py -s path/to/your/data/direc
 ```console
 python .\src\rdf_biodereplication.py -chemdb {The path to the structures metadata SQL DB} -biodb {The path to the samples ChEMBL metadata FOLDER (will integrate all ChEMBL files)} -o path/to/your/target/directory/result.ttl
 ```
+
+## 3. Explore your data! :rocket:
+Different graph database softwares can be used to explore your .ttl files. You can for example use [GraphDB](https://www.ontotext.com/products/graphdb/download/?utm_source=adwords&utm_medium=ppc&utm_term=graphdb&utm_campaign=Search+Graphdb&hsa_cam=19852701758&hsa_mt=b&hsa_ver=3&hsa_src=g&hsa_ad=651747487848&hsa_net=adwords&hsa_tgt=kwd-303292809981&hsa_acc=9129462532&hsa_grp=148766495242&hsa_kw=graphdb&gad=1&gclid=CjwKCAjwgqejBhBAEiwAuWHioH1ML91A1yVo1mWcVlI4PVsHvJNzwZfqNhy-PZuLvMjB_4OBaZ_LeRoCQ0AQAvD_BwE). Load the generated .ttl files (samples' merged files, the [ENPKG schema](https://github.com/enpkg/enpkg_graph_builder/blob/main/data/enpkg_schema.ttl), and the optional ChEMBL .ttl file(s)) and explore the chemistry of your dataset! 🌴 🦠
+
+
