@@ -65,10 +65,6 @@ enpkg:LCMSFeature a rdfs:Class ;
 	rdfs:subClassOf enpkg:MS2Spectrum           ;
 	rdfs:label "LCMS individual MS2 spectrum"   ;
 	rdfs:comment "An LCMS feature from a processed LCMS analysis" .
-enpkg:GNPSConsensusSpectrum a rdfs:Class ;
-	rdfs:subClassOf enpkg:MS2Spectrum           ;
-	rdfs:label "GNPS consensus MS2 spectrum"   ;
-	rdfs:comment "An MS2 spectrum corresponding to the GNPS consensus spectrum of 1 or more LCMSFeature" .
 	
 enpkg:LCMSFeatureList a rdfs:Class ;
 	rdfs:label "Feature list"   ;
@@ -117,10 +113,6 @@ enpkg:LFpair a rdfs:Class ;
 	rdfs:subClassOf enpkg:SpectralPair        ;
 	rdfs:label "pair of LCMSFeature"   ;
 	rdfs:comment "A pair of 2 LCMSFeature" .
-enpkg:CSpair a rdfs:Class ;
-	rdfs:subClassOf enpkg:SpectralPair       ;
-	rdfs:label "pair of GNPSConsensusSpectra"   ;
-	rdfs:comment "A pair of 2 GNPSConsensusSpectra" .
 
 enpkg:ChemicalEntity a rdfs:Class ;
 	rdfs:label "chemical entity" ;
@@ -172,6 +164,22 @@ enpkg:has_member_2 a rdf:Property ;
 	rdfs:subPropertyOf enpkg:has_member          ;
 	rdfs:label "member 2 of a spectral pair"     ;
 	rdfs:comment "The second member of a spectral pair" .
+
+enpkg:spec2vec a rdfs:Class ;
+	rdfs:label "A spec2vec-related object"   ;
+	rdfs:comment "A spec2vec-related object" .
+enpkg:Spec2VecDoc a rdfs:Class ;
+	rdfs:subClassOf enpkg:spec2vec           ;
+	rdfs:label "A Spec2VecDoc"   ;
+	rdfs:comment "An ensemble of Spec2VecPeak and Spec2VecLoss objects that characterizes an MS2Spectrum" .
+enpkg:Spec2VecPeak a rdfs:Class ;
+	rdfs:subClassOf enpkg:spec2vec           ;
+	rdfs:label "A Spec2VecPeak"   ;
+	rdfs:comment "A Spec2VecPeak that partly characterizes an MS2 spectrum" .
+enpkg:Spec2VecLoss a rdfs:Class ;
+	rdfs:subClassOf enpkg:spec2vec           ;
+	rdfs:label "A Spec2VecLoss"   ;
+	rdfs:comment "A Spec2VecLoss that partly characterizes an MS2Spectrum" .
 
 # enpkg:has_spectrum_annotation  a rdf:Property ;
 # 	rdfs:label "has spectrum annotation" ;
