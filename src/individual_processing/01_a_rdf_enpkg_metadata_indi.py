@@ -52,9 +52,9 @@ for directory in tqdm(samples_dir):
     sample = rdflib.term.URIRef(enpkg_uri + metadata.sample_id[0])
     
     if metadata.sample_type[0] == 'sample':
-        material_id = rdflib.term.URIRef(enpkg_uri + metadata.sample_substance_name[0])
+        material_id = rdflib.term.URIRef(enpkg_uri + metadata.source_id[0])
         g.add((material_id, RDF.type, ns_kg.RawMaterial))
-        g.add((material_id, ns_kg.submitted_taxon, rdflib.term.Literal(metadata.organism_species[0])))
+        g.add((material_id, ns_kg.submitted_taxon, rdflib.term.Literal(metadata.source_taxon[0])))
         g.add((material_id, ns_kg.has_lab_process, sample))
         g.add((sample, RDF.type, ns_kg.LabExtract))
         g.add((sample, RDFS.label, rdflib.term.Literal(f"Sample {metadata.sample_id[0]}")))
