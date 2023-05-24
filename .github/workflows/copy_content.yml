@@ -1,0 +1,28 @@
+on:
+    push:
+        branches:
+            - main
+
+name: ⏫ Copy content to enpkg_website
+
+jobs:
+    copy-file:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            # Copy the 'post' folder
+            - name: Push posts
+              uses: dmnemec/copy_file_to_another_repo_action@main
+              env:
+                  API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+              with:
+                  source_file: "data/schema/" # Folder to copy
+                  destination_repo: "enpkg/enpkg_website" # Target repo
+                  destination_folder: "common/data/config/" # Folder where to copy it
+                  user_email: "gaudry.arnaud@gmail.com"
+                  user_name: "Arnaud Gaudry"
+                  commit_message: ${{ github.event.head_commit.message }} # Change it to ${{ github.event.head_commit.message }} to preserve the original commit message
+                  git_server: "github.com"
+                
