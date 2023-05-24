@@ -200,5 +200,5 @@ enpkg:Spec2VecLoss a rdfs:Class ;
 # enpkg:has_sirius_annotation a rdf:Property ;
 # 	rdfs:subPropertyOf enpkg:has_spectrum_annotation ;
 # 	rdfs:label "has SIRIUS annotation"               ;
-# 	rdfs:comment "bla bla about SIRIUS"              ;
+# 	rdfs:comment "bla bla bla about SIRIUS"              ;
 # 	rdfs:range  enpkg:SiriusStructureAnnotation      .
