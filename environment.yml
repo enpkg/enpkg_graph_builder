@@ -22,4 +22,5 @@ dependencies:
   - spec2vec
   - pip:
     - pyyaml
+    - GitPython
 prefix: /opt/anaconda3/envs/graph_builder

@@ -7,6 +7,8 @@ from rdflib import Graph, Namespace
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
 from tqdm import tqdm
+import git
+import yaml
 
 p = Path(__file__).parents[2]
 os.chdir(p)
@@ -95,7 +97,24 @@ for directory in tqdm(samples_dir):
     pathout = os.path.join(sample_dir_path, directory, "rdf/")
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, 'metadata_module_enpkg.ttl'))
+    
     if len(g)>0:
         g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        
+        # Save parameters:
+        params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+        
+        if os.path.isfile(params_path):
+            with open(params_path, encoding='UTF-8') as file:    
+                params_list = yaml.load(file, Loader=yaml.FullLoader) 
+        else:
+            params_list = {}  
+                
+        params_list.update({'metadata_module_enpkg':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                            {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+        
+        with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+            yaml.dump(params_list, file)
+            
         print(f'Results are in : {pathout}')          
         

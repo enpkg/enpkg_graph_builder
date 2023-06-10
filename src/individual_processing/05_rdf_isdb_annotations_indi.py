@@ -7,12 +7,14 @@ import json
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
 from tqdm import tqdm
-
-# These lines allows to make sure that we are placed at the repo directory level 
 from pathlib import Path
+import sys
+import git
+import yaml
 
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash, get_data
 
-from pathlib import Path
 p = Path(__file__).parents[2]
 os.chdir(p)
 
@@ -76,6 +78,16 @@ for directory in tqdm(samples_dir):
         isdb_annotation_id = rdflib.term.URIRef(kg_uri + "isdb_" + usi)
         
         g.add((feature_id, ns_kg.has_isdb_annotation, isdb_annotation_id))
+        
+        isdb_params_path = os.path.join(path, directory, ionization_mode, 'isdb', 'config.yaml')
+        hash_1 = get_hash(isdb_params_path)
+        data_1 = get_data(isdb_params_path)
+        has_isdb_annotation_hash = rdflib.term.URIRef(kg_uri + "has_isdb_annotation_" + hash_1)
+        g.add((feature_id, has_isdb_annotation_hash, isdb_annotation_id))
+        g.add((has_isdb_annotation_hash, RDFS.subPropertyOf, rdflib.term.URIRef(kg_uri + 'has_isdb_annotation')))
+        g.add((has_isdb_annotation_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+        del(hash_1, data_1)
+        
         g.add((isdb_annotation_id, RDFS.label, rdflib.term.Literal(f"isdb annotation of {usi}")))
         g.add((isdb_annotation_id, ns_kg.has_InChIkey2D, InChIkey2D))
         g.add((isdb_annotation_id, ns_kg.has_spectral_score, rdflib.term.Literal(row['score_input'], datatype=XSD.float)))
@@ -90,4 +102,20 @@ for directory in tqdm(samples_dir):
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, f'isdb_{ionization_mode}.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+    
+    # Save parameters:
+    params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+    
+    if os.path.isfile(params_path):
+        with open(params_path, encoding='UTF-8') as file:    
+            params_list = yaml.load(file, Loader=yaml.FullLoader) 
+    else:
+        params_list = {}  
+            
+    params_list.update({f'isdb_{ionization_mode}':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                        {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+    
+    with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+        yaml.dump(params_list, file)
+        
     print(f'Results are in : {pathout}')     

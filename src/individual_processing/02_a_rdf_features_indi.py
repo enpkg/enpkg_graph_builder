@@ -6,8 +6,14 @@ import rdflib
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD, FOAF
 from tqdm import tqdm
-
 from pathlib import Path
+import sys
+import git
+import yaml
+
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash, get_data
+
 p = Path(__file__).parents[2]
 os.chdir(p)
 
@@ -66,10 +72,22 @@ for directory in tqdm(samples_dir):
 
         if ionization_mode == 'pos':
             lc_ms = rdflib.term.URIRef(kg_uri + metadata['sample_filename_pos'][0])
+            for file in [directory for directory in os.listdir(os.path.join(path, directory, "pos"))]:
+                if file.startswith(f'{directory}_lcms_processing_params_pos'):
+                    lcms_processing_params_path = os.path.join(path, directory, "pos", file)       
         elif ionization_mode == 'neg':
             lc_ms = rdflib.term.URIRef(kg_uri + metadata['sample_filename_neg'][0])
-        
-        g.add((lc_ms, ns_kg.has_lcms_feature_list, feature_list))
+            for file in [directory for directory in os.listdir(os.path.join(path, directory, "neg"))]:
+                if file.startswith(f'{directory}_lcms_processing_params_neg'):
+                    lcms_processing_params_path = os.path.join(path, directory, "neg", file)
+
+        hash_1 = get_hash(lcms_processing_params_path)
+        data_1 = get_data(lcms_processing_params_path)
+        has_lcms_feature_list_hash = rdflib.term.URIRef(kg_uri + "has_lcms_feature_list_" + hash_1)
+        g.add((lc_ms, has_lcms_feature_list_hash, feature_list))
+        g.add((has_lcms_feature_list_hash, RDFS.subPropertyOf, rdflib.term.URIRef(kg_uri + 'has_lcms_feature_list')))
+        g.add((has_lcms_feature_list_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+        del(hash_1, data_1)
 
         g.add((feature_list, RDF.type, ns_kg.LCMSFeatureList))
         g.add((feature_list, ns_kg.has_ionization, rdflib.term.Literal(ionization_mode)))
@@ -80,7 +98,7 @@ for directory in tqdm(samples_dir):
             feature_id = rdflib.term.URIRef(kg_uri + 'lcms_feature_' + usi)
             g.add((feature_list, ns_kg.has_lcms_feature, feature_id))
             g.add((feature_id, RDF.type, ns_kg.LCMSFeature))
-            g.add((feature_id, RDFS.label, rdflib.term.Literal(f"lcms_feature {usi}")))
+            g.add((feature_id, RDFS.label, rdflib.term.Literal(f"lcms_feature {str(int(row['row ID']))} of LCMS feature list in {ionization_mode} ionization mode of {metadata.sample_id[0]}")))
             g.add((feature_id, ns_kg.has_ionization, rdflib.term.Literal(ionization_mode)))
             g.add((feature_id, ns_kg.has_row_id, rdflib.term.Literal(row['row ID'], datatype=XSD.integer)))
             g.add((feature_id, ns_kg.has_parent_mass, rdflib.term.Literal(row['row m/z'], datatype=XSD.float)))
@@ -98,4 +116,20 @@ for directory in tqdm(samples_dir):
         os.makedirs(pathout, exist_ok=True)
         pathout = os.path.normpath(os.path.join(pathout, f'features_{ionization_mode}.ttl'))
         g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        
+        # Save parameters:
+        params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+        
+        if os.path.isfile(params_path):
+            with open(params_path, encoding='UTF-8') as file:    
+                params_list = yaml.load(file, Loader=yaml.FullLoader) 
+        else:
+            params_list = {}  
+                
+        params_list.update({f'features_{ionization_mode}':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                            {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+        
+        with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+            yaml.dump(params_list, file)
+            
         print(f'Results are in : {pathout}')

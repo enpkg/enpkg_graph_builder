@@ -8,6 +8,12 @@ import argparse
 import textwrap
 from pathlib import Path
 from tqdm import tqdm
+import sys
+import git
+import yaml
+
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash, get_data
 
 p = Path(__file__).parents[2]
 os.chdir(p)
@@ -78,6 +84,14 @@ for directory in tqdm(samples_dir):
         g.add((link_node, ns_kg.has_cosine, rdflib.term.Literal(cosine, datatype=XSD.float)))
         g.add((link_node, ns_kg.has_mass_difference, rdflib.term.Literal(mass_diff, datatype=XSD.float)))
 
+        mn_params_path = os.path.join(path, directory, ionization_mode, 'molecular_network', 'config.yaml')
+        hash_1 = get_hash(mn_params_path)
+        data_1 = get_data(mn_params_path)
+        mn_params_hash = rdflib.term.URIRef(kg_uri + "mn_params_" + hash_1)
+        g.add((link_node, ns_kg.has_mn_params, mn_params_hash))
+        g.add((mn_params_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+        del(hash_1, data_1)
+        
         if graph_metadata[graph_metadata.feature_id == int(s)]['precursor_mz'].values[0] > graph_metadata[graph_metadata.feature_id == int(t)]['precursor_mz'].values[0]:
             g.add((link_node, ns_kg.has_member_1, s_feature_id))
             g.add((link_node, ns_kg.has_member_2, t_feature_id))
@@ -89,4 +103,21 @@ for directory in tqdm(samples_dir):
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, f'individual_mn_{ionization_mode}.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+    
+    # Save parameters:
+    params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+    
+    if os.path.isfile(params_path):
+        with open(params_path, encoding='UTF-8') as file:    
+            params_list = yaml.load(file, Loader=yaml.FullLoader) 
+    else:
+        params_list = {}  
+            
+    params_list.update({f'individual_mn_{ionization_mode}':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                        {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+    
+    with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+        yaml.dump(params_list, file)
+        
     print(f'Results are in : {pathout}')  
+    

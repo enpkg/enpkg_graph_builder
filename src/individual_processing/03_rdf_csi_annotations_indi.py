@@ -8,6 +8,12 @@ from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
 from tqdm import tqdm
+import sys
+import yaml
+import git
+
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash, get_data
 
 p = Path(__file__).parents[2]
 os.chdir(p)
@@ -71,7 +77,15 @@ for directory in tqdm(samples_dir):
         
         InChIkey2D = rdflib.term.URIRef(kg_uri + row['InChIkey2D'])
         
-        g.add((feature_id, ns_kg.has_sirius_annotation, sirius_annotation_id))
+        sirius_params_path = os.path.join(path, directory, ionization_mode, directory + '_WORKSPACE_SIRIUS', 'params.yml')
+        hash_1 = get_hash(sirius_params_path)
+        data_1 = get_data(sirius_params_path)
+        has_sirius_annotation_hash = rdflib.term.URIRef(kg_uri + "has_sirius_annotation_" + hash_1)
+        g.add((feature_id, has_sirius_annotation_hash, sirius_annotation_id))
+        g.add((has_sirius_annotation_hash, RDFS.subPropertyOf, rdflib.term.URIRef(kg_uri + 'has_sirius_annotation')))
+        g.add((has_sirius_annotation_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+        del(hash_1, data_1)
+        
         g.add((sirius_annotation_id, ns_kg.has_InChIkey2D, InChIkey2D))
         g.add((sirius_annotation_id, ns_kg.has_ionization, rdflib.term.Literal(ionization_mode)))
         g.add((sirius_annotation_id, RDFS.label, rdflib.term.Literal(f"sirius annotation of {usi}")))
@@ -88,4 +102,21 @@ for directory in tqdm(samples_dir):
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, f'sirius_{ionization_mode}.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
-    print(f'Results are in : {pathout}')     
+    
+    # Save parameters:
+    params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+    
+    if os.path.isfile(params_path):
+        with open(params_path, encoding='UTF-8') as file:    
+            params_list = yaml.load(file, Loader=yaml.FullLoader) 
+    else:
+        params_list = {}  
+            
+    params_list.update({f'sirius_{ionization_mode}':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                        {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+    
+    with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+        yaml.dump(params_list, file)
+        
+    print(f'Results are in : {pathout}')
+    

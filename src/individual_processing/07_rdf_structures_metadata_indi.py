@@ -8,6 +8,8 @@ import argparse
 import textwrap
 from pathlib import Path
 from tqdm import tqdm
+import git
+import yaml
 
 # These lines allows to make sure that we are placed at the repo directory level 
 p = Path(__file__).parents[2]
@@ -142,4 +144,20 @@ for directory in tqdm(samples_dir):
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, 'structures_metadata.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+    
+    # Save parameters:
+    params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+    
+    if os.path.isfile(params_path):
+        with open(params_path, encoding='UTF-8') as file:    
+            params_list = yaml.load(file, Loader=yaml.FullLoader) 
+    else:
+        params_list = {}  
+            
+    params_list.update({'structures_metadata':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                        {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+    
+    with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+        yaml.dump(params_list, file)
+        
     print(f'Results are in : {pathout}')  

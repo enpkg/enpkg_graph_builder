@@ -7,6 +7,12 @@ import rdflib
 from rdflib import Graph, Namespace
 from rdflib.namespace import RDF, RDFS, FOAF
 from tqdm import tqdm
+import sys
+import yaml
+import git
+
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash, get_data
 
 p = Path(__file__).parents[2]
 os.chdir(p)
@@ -67,7 +73,19 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_pos}'
                 link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
-                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
+                
+                for file in [directory for directory in os.listdir(os.path.join(path, directory, "pos"))]:
+                    if file.startswith(f'{directory}_lcms_method_params_pos'):
+                        lcms_analysis_params_path = os.path.join(path, directory, "pos", file)        
+
+                hash_1 = get_hash(lcms_analysis_params_path)
+                data_1 = get_data(lcms_analysis_params_path)
+                has_lcms_hash = rdflib.term.URIRef(enpkg_uri + "has_LCMS_" + hash_1)
+                g.add((sample, has_lcms_hash, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0])))
+                g.add((has_lcms_hash, RDFS.subPropertyOf, rdflib.term.URIRef(enpkg_uri + 'has_LCMS')))
+                g.add((has_lcms_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+                del(hash_1, data_1)
+                
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), RDF.type, ns_kg.LCMSAnalysisPos))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_gnpslcms_link, rdflib.URIRef(gnps_dashboard_link)))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_pos'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
@@ -81,7 +99,19 @@ for directory in tqdm(samples_dir):
                 gnps_dashboard_link = f'https://gnps-lcms.ucsd.edu/?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 gnps_tic_pic = f'https://gnps-lcms.ucsd.edu/mspreview?usi=mzspec:{massive_id}:{sample_filename_neg}'
                 link_to_massive = f'https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession={massive_id}'
-                g.add((sample, ns_kg.has_LCMS, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
+                
+                for file in [directory for directory in os.listdir(os.path.join(path, directory, "neg"))]:
+                    if file.startswith(f'{directory}_lcms_method_params_neg'):
+                        lcms_analysis_params_path = os.path.join(path, directory, "neg", file)        
+
+                hash_1 = get_hash(lcms_analysis_params_path)
+                data_1 = get_data(lcms_analysis_params_path)
+                has_lcms_hash = rdflib.term.URIRef(enpkg_uri + "has_LCMS_" + hash_1)
+                g.add((sample, has_lcms_hash, rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0])))
+                g.add((has_lcms_hash, RDFS.subPropertyOf, rdflib.term.URIRef(enpkg_uri + 'has_LCMS')))
+                g.add((has_lcms_hash, ns_kg.has_content, rdflib.term.Literal(data_1)))
+                del(hash_1, data_1)
+            
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), RDF.type, ns_kg.LCMSAnalysisNeg))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_gnpslcms_link, rdflib.URIRef(gnps_dashboard_link)))
                 g.add((rdflib.term.URIRef(enpkg_uri + metadata['sample_filename_neg'][0]), ns_kg.has_massive_doi, rdflib.URIRef(link_to_massive)))
@@ -90,12 +120,20 @@ for directory in tqdm(samples_dir):
            
         # Add WD taxonomy link to substance
         metadata_taxo_path = os.path.join(path, directory, 'taxo_output', directory + '_taxo_metadata.tsv')
+        taxo_params_path = os.path.join(path, directory, 'taxo_output', 'params.yaml')
         try:
             metadata_taxo = pd.read_csv(metadata_taxo_path, sep='\t')
             if not pd.isna(metadata_taxo['wd.value'][0]):
-                wd_id = rdflib.term.URIRef(WD + metadata_taxo['wd.value'][0][31:])
-                g.add((material_id, ns_kg.has_wd_id, wd_id))
+                wd_id = rdflib.term.URIRef(WD + metadata_taxo['wd.value'][0][31:])               
+                hash_2 = get_hash(taxo_params_path)
+                data_2 = get_data(taxo_params_path)
+                has_wd_id_hash = rdflib.term.URIRef(enpkg_uri + "has_wd_id_" + hash_2)
+                g.add((material_id, has_wd_id_hash, wd_id))
+                g.add((has_wd_id_hash, RDFS.subPropertyOf, rdflib.term.URIRef(enpkg_uri + 'has_wd_id')))
+                g.add((has_wd_id_hash, ns_kg.has_content, rdflib.term.Literal(data_2)))
                 g.add((wd_id, RDF.type, ns_kg.WDTaxon))
+                del(hash_2, data_2)
+                
             else:
                 g.add((material_id, ns_kg.has_unresolved_taxon, rdflib.term.URIRef(enpkg_uri + 'unresolved_taxon')))              
         except FileNotFoundError:
@@ -151,4 +189,20 @@ for directory in tqdm(samples_dir):
     os.makedirs(pathout, exist_ok=True)
     pathout = os.path.normpath(os.path.join(pathout, 'metadata_enpkg.ttl'))
     g.serialize(destination=pathout, format="ttl", encoding="utf-8")
+    
+    # Save parameters:
+    params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
+    
+    if os.path.isfile(params_path):
+        with open(params_path, encoding='UTF-8') as file:    
+            params_list = yaml.load(file, Loader=yaml.FullLoader) 
+    else:
+        params_list = {}  
+              
+    params_list.update({'metadata_enpkg':[{'git_commit':git.Repo(search_parent_directories=True).head.object.hexsha},
+                        {'git_commit_link':f'https://github.com/enpkg/enpkg_graph_builder/tree/{git.Repo(search_parent_directories=True).head.object.hexsha}'}]})
+    
+    with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
+        yaml.dump(params_list, file)
+    
     print(f'Results are in : {pathout}')
