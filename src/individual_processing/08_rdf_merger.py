@@ -91,6 +91,8 @@ for directory in tqdm(samples_dir):
 
         hash_merged = get_hash(pathout_graph)
         pathout_graph_hash = os.path.normpath(os.path.join(pathout, f'{massive_id}_{directory}_merged_graph_{hash_merged}.ttl'))
+        if os.path.isfile(pathout_graph_hash):
+            os.remove(pathout_graph_hash)
         os.rename(pathout_graph, pathout_graph_hash)
         
         # Save parameters:
