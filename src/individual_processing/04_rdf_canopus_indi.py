@@ -4,11 +4,14 @@ import argparse
 import textwrap
 import pandas as pd
 import rdflib
-from rdflib import Graph, URIRef, Literal, BNode
+from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, XSD
 from pathlib import Path
 from tqdm import tqdm
 import sys
+import yaml
+import git
+
 sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
 from hash_functions import get_hash, get_data
 

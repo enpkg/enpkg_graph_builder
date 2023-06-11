@@ -39,9 +39,15 @@ os.makedirs(target_path, exist_ok=True)
 samples_dir = [directory for directory in os.listdir(source_path)]
 df_list = []
 for directory in tqdm(samples_dir):
-    src = os.path.join(source_path, directory, "rdf", f"{directory}_merged_graph.ttl")
+    if os.path.isdir(os.path.join(source_path, directory, "rdf")):
+        for file in [directory for directory in os.listdir(os.path.join(source_path, directory, "rdf"))]:
+            if 'merged_graph' in file:
+                file_name = file
+                src = os.path.join(source_path, directory, "rdf", file_name)
+    else:
+        continue
     if os.path.isfile(src):
-        dst = os.path.join(target_path, f"{directory}_merged_graph.ttl")
+        dst = os.path.join(target_path, file_name)
         if compress:
             with open(src, 'rb') as f_in:
                 file_out = os.path.join(dst) + '.gz'
@@ -50,3 +56,5 @@ for directory in tqdm(samples_dir):
                         shutil.copyfileobj(f_in, f_out)
         else:
             shutil.copyfile(src, dst)
+    else:
+        continue

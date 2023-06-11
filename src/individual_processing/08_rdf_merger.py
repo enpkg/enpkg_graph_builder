@@ -1,4 +1,5 @@
 from rdflib import Graph, Namespace
+import pandas as pd
 from pathlib import Path
 import os
 from tqdm import tqdm
@@ -7,6 +8,10 @@ import argparse
 import textwrap
 import git
 import yaml
+import sys
+
+sys.path.append(os.path.join(Path(__file__).parents[1], 'functions'))
+from hash_functions import get_hash
 
 # These lines allows to make sure that we are placed at the repo directory level 
 p = Path(__file__).parents[2]
@@ -53,6 +58,15 @@ files = ["rdf/canopus_pos.ttl", "rdf/canopus_neg.ttl",
         "rdf/structures_metadata.ttl"]
 
 for directory in tqdm(samples_dir):
+    metadata_path = os.path.join(path, directory, directory + '_metadata.tsv')
+    try:
+        metadata = pd.read_csv(metadata_path, sep='\t')
+    except FileNotFoundError:
+        continue
+    except NotADirectoryError:
+        continue
+    massive_id = metadata['massive_id'][0]
+    
     # Iterate over the files and add their contents to the merged graph
     exist_files = []
     for file_path in files:
@@ -72,12 +86,15 @@ for directory in tqdm(samples_dir):
 
         pathout = os.path.join(sample_dir_path, directory, "rdf/")
         os.makedirs(pathout, exist_ok=True)
-        pathout = os.path.normpath(os.path.join(pathout, f'{directory}_merged_graph.ttl'))
-        merged_graph.serialize(destination=pathout, format="ttl", encoding="utf-8")
+        pathout_graph = os.path.normpath(os.path.join(pathout, f'{massive_id}_{directory}_merged_graph.ttl'))
+        merged_graph.serialize(destination=pathout_graph, format="ttl", encoding="utf-8")
+
+        hash_merged = get_hash(pathout_graph)
+        pathout_graph_hash = os.path.normpath(os.path.join(pathout, f'{massive_id}_{directory}_merged_graph_{hash_merged}.ttl'))
+        os.rename(pathout_graph, pathout_graph_hash)
         
         # Save parameters:
         params_path = os.path.join(sample_dir_path, directory, "rdf", "graph_params.yaml")
-
         if os.path.isfile(params_path):
             with open(params_path, encoding='UTF-8') as file:    
                 params_list = yaml.load(file, Loader=yaml.FullLoader) 
@@ -90,8 +107,7 @@ for directory in tqdm(samples_dir):
         with open(os.path.join(params_path), 'w', encoding='UTF-8') as file:
             yaml.dump(params_list, file)
         
-        print(f'Results are in : {pathout}')
-
+        print(f'Results are in : {pathout_graph_hash}')
+    
     else:
         continue
-
