@@ -1,6 +1,7 @@
 # enpkg_graph_builder
 
 ![release_badge](https://img.shields.io/github/v/release/enpkg/enpkg_graph_builder)
+![license](https://img.shields.io/github/license/enpkg/enpkg_graph_builder)
 
 Build the Experimental Natural Products Knowledge Graph
 
