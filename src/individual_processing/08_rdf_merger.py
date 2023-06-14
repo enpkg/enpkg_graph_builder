@@ -84,6 +84,10 @@ for directory in tqdm(samples_dir):
                 file_content = f.read()
                 merged_graph.parse(data=file_content, format="ttl")
 
+        for file in os.listdir(os.path.join(os.path.join(sample_dir_path, directory, 'rdf'))):
+            if file.startswith(massive_id):
+                os.remove(os.path.join(sample_dir_path, directory, 'rdf', file))
+                
         pathout = os.path.join(sample_dir_path, directory, "rdf/")
         os.makedirs(pathout, exist_ok=True)
         pathout_graph = os.path.normpath(os.path.join(pathout, f'{massive_id}_{directory}_merged_graph.ttl'))
